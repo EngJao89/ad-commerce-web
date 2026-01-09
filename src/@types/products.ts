@@ -11,7 +11,7 @@ export type Product = {
   };
 }
 
-export type ProductDetailProps ={
+export type ProductDetailProps = {
   id: number;
   title: string;
   price: number;

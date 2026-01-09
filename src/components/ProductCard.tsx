@@ -1,5 +1,7 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -7,7 +9,10 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart } from "lucide-react";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ShoppingCart, Minus, Plus } from "lucide-react";
 import type { ProductDetailProps } from "@/@types/products";
 
 export default function ProductCard({
@@ -18,6 +23,23 @@ export default function ProductCard({
   image,
   rating,
 }: ProductDetailProps) {
+  const [quantity, setQuantity] = useState(0);
+
+  const handleDecrease = () => {
+    if (quantity > 0) {
+      setQuantity(quantity - 1);
+    }
+  };
+
+  const handleIncrease = () => {
+    setQuantity(quantity + 1);
+  };
+
+  const handleAddToCart = () => {
+    if (quantity > 0) {
+      console.log(`Adicionar ${quantity} unidades do produto ${id} ao carrinho`);
+    }
+  };
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
       <CardHeader className="p-0 relative">
@@ -49,15 +71,42 @@ export default function ProductCard({
       </CardContent>
       <CardFooter className="flex items-center justify-between pt-2">
         <div className="flex flex-col">
-          <span className="text-2xl font-bold text-zinc-400">${price}</span>
+          <span className="text-2xl font-bold text-zinc-400">
+            {new Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            }).format(price)}
+          </span>
         </div>
-        <Link
-          href={`/products/${id}`}
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-md transition-colors backdrop-blur-sm border border-white/10"
-        >
-          <ShoppingCart className="h-4 w-4 text-zinc-400" />
-          <span className="text-sm font-medium text-zinc-400">Ver Detalhes</span>
-        </Link>
+        <ButtonGroup>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleDecrease}
+            disabled={quantity === 0}
+            className="text-zinc-400"
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <Input
+            type="number"
+            value={quantity}
+            onChange={(e) => {
+              const value = Number.parseInt(e.target.value) || 0;
+              setQuantity(Math.max(0, value));
+            }}
+            min={0}
+            className="w-16 text-center text-zinc-400"
+          />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleIncrease}
+            className="text-zinc-400"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </ButtonGroup>
       </CardFooter>
     </Card>
   );
