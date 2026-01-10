@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { SortByPrice, SortByName, ProductFilterComponentProps } from "@/@types/products";
+
+import type { 
+  SortByPrice, 
+  SortByName, 
+  ProductFilterComponentProps 
+} from "@/@types/products";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import ProductCard from "@/components/ProductCard";

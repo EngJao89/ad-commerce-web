@@ -43,3 +43,11 @@ export interface ProductFilterComponentProps extends ProductFilterProps {
 export type ProductDetailClientProps = {
   productId: string;
 }
+
+export type ProductQuantityControlsProps = {
+  productId: number;
+}
+
+export type ProductsGridSkeletonProps = {
+  count?: number;
+}

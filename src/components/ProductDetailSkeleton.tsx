@@ -5,10 +5,8 @@ export default function ProductDetailSkeleton() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Image Skeleton */}
         <Skeleton className="w-full h-[500px] lg:h-[600px] rounded-lg" />
 
-        {/* Content Skeleton */}
         <div className="flex flex-col gap-6">
           <div>
             <Skeleton className="h-6 w-24 rounded-full mb-4" />
