@@ -42,13 +42,6 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
   if (!product) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors mb-6"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to products</span>
-        </Link>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-white mb-2">Product not found</h2>
@@ -70,13 +63,7 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors mb-6"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to products</span>
-      </Link>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="relative w-full h-[500px] lg:h-[600px] rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-900">
           <Image
