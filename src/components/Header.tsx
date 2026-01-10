@@ -58,7 +58,7 @@ export default function Header() {
                   <li>
                     <NavigationMenuLink asChild>
                       <Link
-                        href="/products?category=clothing"
+                        href="/mensclothing"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">
@@ -73,7 +73,7 @@ export default function Header() {
                   <li>
                     <NavigationMenuLink asChild>
                       <Link
-                        href="/products?category=clothing"
+                        href="/womensclothing"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">
