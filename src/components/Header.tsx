@@ -14,7 +14,7 @@ import { ShoppingCart } from "lucide-react";
 export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-white/5 backdrop-blur-md supports-backdrop-filter:bg-white/10 shadow-lg shadow-black/5">
-      <div className="container flex h-16 items-center justify-between px-4">
+      <div className="container flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
         <Link href="/" className="flex items-center space-x-2">
           <span className="text-xl font-bold text-white">AD Commerce</span>
         </Link>
