@@ -39,3 +39,7 @@ export interface ProductFilterComponentProps extends ProductFilterProps {
   defaultCategory?: string;
   hideCategoryFilter?: boolean;
 }
+
+export type ProductDetailClientProps = {
+  productId: string;
+}

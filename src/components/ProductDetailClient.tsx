@@ -3,20 +3,16 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import api from "@/lib/axios";
+
+import { showApiError } from "@/lib/toast";
 import { formatPrice } from "@/lib/utils";
+import type { Product, ProductDetailClientProps } from "@/@types/products";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Star } from "lucide-react";
 import ProductQuantityControls from "@/components/ProductQuantityControls";
-import { showApiError } from "@/lib/toast";
 import ProductDetailSkeleton from "@/components/ProductDetailSkeleton";
-import type { Product } from "@/@types/products";
-
-interface ProductDetailClientProps {
-  productId: string;
-}
 
 export default function ProductDetailClient({ productId }: ProductDetailClientProps) {
   const [product, setProduct] = useState<Product | null>(null);
