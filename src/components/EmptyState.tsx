@@ -8,7 +8,7 @@ export default function EmptyState({
   title = "No products found",
   message = "We couldn't find any products matching your criteria. Try adjusting your filters.",
   actionLabel = "View all products",
-  actionHref = "/",
+  actionHref,
 }: Readonly<EmptyStateProps>) {
   return (
     <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[400px]">
