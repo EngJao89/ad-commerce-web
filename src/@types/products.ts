@@ -30,3 +30,7 @@ export type ProductFilterProps = {
 
 export type SortByPrice = "asc" | "desc" | null;
 export type SortByName = "asc" | "desc" | null;
+
+export type ProductDetailPageProps = {
+  params: Promise<{ id: string }>;
+}
