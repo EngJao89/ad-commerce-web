@@ -5,6 +5,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
+import { showToast } from "@/lib/toast";
 
 interface ProductQuantityControlsProps {
   productId: number;
@@ -12,7 +13,7 @@ interface ProductQuantityControlsProps {
 
 export default function ProductQuantityControls({
   productId,
-}: ProductQuantityControlsProps) {
+}: Readonly<ProductQuantityControlsProps>) {
   const [quantity, setQuantity] = useState(0);
 
   const handleDecrease = () => {
@@ -27,7 +28,12 @@ export default function ProductQuantityControls({
 
   const handleAddToCart = () => {
     if (quantity > 0) {
-      console.log(`Adicionar ${quantity} unidades do produto ${productId} ao carrinho`);
+      showToast.success(
+        `${quantity} item${quantity > 1 ? 's' : ''} of product #${productId} added to cart successfully!`
+      );
+      setQuantity(0);
+    } else {
+      showToast.warning("Please select a quantity first");
     }
   };
 
@@ -62,6 +68,16 @@ export default function ProductQuantityControls({
           <Plus className="h-4 w-4" />
         </Button>
       </ButtonGroup>
+      <Button
+        variant="default"
+        onClick={handleAddToCart}
+        disabled={quantity === 0}
+        className="w-full text-white"
+        size="lg"
+      >
+        <ShoppingCart className="h-5 w-5 mr-2" />
+        Add to Cart
+      </Button>
     </div>
   );
 }
