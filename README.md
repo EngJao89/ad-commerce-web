@@ -1,8 +1,18 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rodando o projeto
 
-## Getting Started
+Instalação das dependências:
 
-First, run the development server:
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+# or
+bun install
+```
+
+Rodando o servidor de desenvolvimento:
 
 ```bash
 npm run dev
@@ -14,23 +24,117 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Sobre o projeto
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Este é um projeto de um e-commerce fictício chamado "AD Commerce". O projeto foi desenvolvido usando Next.js 16.1.1, React 19.2.3, Tailwind CSS 4, Shadcn UI e Lucide React.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Funcionalidades
 
-## Learn More
+- Listagem de produtos
+- Detalhes do produto
+- Carrinho de compras
+- Checkout
 
-To learn more about Next.js, take a look at the following resources:
+## Tecnologias usadas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Next.js 16.1.1 - A escolha do Next.js foi feita por conta da sua performance e facilidade de uso.
+- Tailwind CSS 4 - A escolha foi feita por conta do mobile first e praticidade ao estilizar o projeto.
+- Shadcn UI - A escolha do design system foi feita para dar um visual moderno e consistente ao projeto.
+- Commitizen - Essa lib foi escolhida para facilitar o commit dos commits e garantir que o commit tenha um formato padrão.
+- Axios - Essa lib foi escolhida para fazer as requisições à API com tratamento de erros e response data.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Trade-offs e Decisões Arquiteturais
 
-## Deploy on Vercel
+Este projeto faz uso de várias decisões arquiteturais que envolvem trade-offs. Abaixo estão as principais decisões e suas compensações:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Server Components vs Client Components
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Decisão:** Uso de Server Components para páginas principais e Client Components apenas quando necessário (interatividade, hooks, etc.)
+
+**Trade-offs:**
+
+- ✅ **Prós:** Melhor performance inicial, menor bundle JavaScript, SEO otimizado, dados frescos do servidor
+- ❌ **Contras:** Limitações em interatividade, não pode usar hooks do React diretamente, requer Client Components para estados e eventos
+
+**Exemplo:** A página de listagem de produtos (`/app/page.tsx`) é Server Component, enquanto o filtro de produtos (`ProductFilter`) é Client Component para gerenciar estado de filtros.
+
+### Tratamento de Erros: Toast vs Error Boundaries
+
+**Decisão:** Uso de react-toastify para notificações de erro em tempo real e error boundaries do Next.js para erros críticos
+
+**Trade-offs:**
+
+- ✅ **Prós:** Feedback imediato ao usuário, não interrompe o fluxo da aplicação, melhor UX
+- ❌ **Contras:** Erros podem passar despercebidos se o usuário não estiver olhando, requer gerenciamento de estado de erro
+
+**Exemplo:** Erros de API são exibidos via toast, enquanto erros de renderização são capturados por error boundaries.
+
+### Gerenciamento de Estado
+
+**Decisão:** Estado local com `useState` para componentes individuais, sem gerenciamento de estado global
+
+**Trade-offs:**
+
+- ✅ **Prós:** Simplicidade, sem dependências extras, fácil de entender e manter
+- ❌ **Contras:** Estado não compartilhado entre componentes, pode levar a prop drilling em casos complexos, carrinho de compras não persiste entre páginas
+
+**Exemplo:** O estado de quantidade no `ProductQuantityControls` é local, não compartilhado com outros componentes.
+
+### Performance de Imagens
+
+**Decisão:** Uso do componente `Image` do Next.js com lazy loading por padrão
+
+**Trade-offs:**
+
+- ✅ **Prós:** Otimização automática de imagens, lazy loading reduz carga inicial, melhor Core Web Vitals
+- ❌ **Contras:** Imagens abaixo da dobra podem ter delay no carregamento, requer configuração de domínios externos
+
+**Nota:** Para melhorar LCP, as primeiras imagens poderiam usar `priority={true}`, mas isso foi removido para manter consistência.
+
+### Fetching de Dados: Server vs Client
+
+**Decisão:** Páginas principais fazem fetch no servidor, página de detalhes faz fetch no cliente
+
+**Trade-offs:**
+
+- ✅ **Prós (Server):** Dados frescos, melhor SEO, menor bundle, cache do Next.js
+- ✅ **Prós (Client):** Melhor tratamento de erros com toast, loading states mais granulares, não bloqueia renderização
+- ❌ **Contras:** Inconsistência na estratégia de fetching, página de detalhes requer JavaScript para funcionar
+
+**Exemplo:** Lista de produtos é Server Component, enquanto detalhes do produto (`ProductDetailClient`) é Client Component para permitir tratamento de erro com toast.
+
+### Design System: Shadcn UI
+
+**Decisão:** Uso do Shadcn UI como base de componentes
+
+**Trade-offs:**
+
+- ✅ **Prós:** Componentes acessíveis, customizáveis, baseados em Radix UI, código no projeto (não é dependência)
+- ❌ **Contras:** Requer manutenção manual dos componentes, pode precisar de atualizações manuais, mais arquivos no projeto
+
+### Estilização: Tailwind CSS
+
+**Decisão:** Tailwind CSS 4 para toda a estilização
+
+**Trade-offs:**
+
+- ✅ **Prós:** Desenvolvimento rápido, consistência visual, mobile-first, purge automático
+- ❌ **Contras:** Classes podem ficar verbosas, curva de aprendizado, HTML pode ficar poluído
+
+### API Client: Axios
+
+**Decisão:** Axios ao invés de fetch nativo
+
+**Trade-offs:**
+
+- ✅ **Prós:** Interceptors para tratamento global de erros, configuração centralizada, melhor tratamento de erros
+- ❌ **Contras:** Bundle maior, dependência extra, fetch nativo seria mais leve
+
+### Notificações: React-toastify
+
+**Decisão:** React-toastify para todas as notificações
+
+**Trade-offs:**
+
+- ✅ **Prós:** Fácil de usar, muitas opções de customização, bom suporte
+- ❌ **Contras:** Dependência extra, pode ser substituído por soluções mais leves, requer CSS adicional
