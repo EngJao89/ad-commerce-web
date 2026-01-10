@@ -6,8 +6,17 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import ProductCard from "@/components/ProductCard";
 import type { ProductFilterProps, SortByPrice, SortByName } from "@/@types/products";
 
-export default function ProductFilter({ products }: ProductFilterProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+interface ProductFilterComponentProps extends ProductFilterProps {
+  defaultCategory?: string;
+  hideCategoryFilter?: boolean;
+}
+
+export default function ProductFilter({ 
+  products, 
+  defaultCategory = "all",
+  hideCategoryFilter = false 
+}: ProductFilterComponentProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>(defaultCategory);
   const [sortByPrice, setSortByPrice] = useState<SortByPrice>(null);
   const [sortByName, setSortByName] = useState<SortByName>(null);
 
@@ -56,28 +65,30 @@ export default function ProductFilter({ products }: ProductFilterProps) {
     <>
       <div className="mb-6 space-y-4">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label htmlFor="category-filter" className="text-sm font-medium text-zinc-400">
-              Categoria:
-            </label>
-            <NativeSelect
-              id="category-filter"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="min-w-[200px] text-zinc-400"
-            >
-              <NativeSelectOption value="all">Todas as categorias</NativeSelectOption>
-              {categories.map((category) => (
-                <NativeSelectOption key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-          </div>
+          {!hideCategoryFilter && (
+            <div className="flex items-center gap-2">
+              <label htmlFor="category-filter" className="text-sm font-medium text-zinc-400">
+                Category:
+              </label>
+              <NativeSelect
+                id="category-filter"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="min-w-[200px] text-zinc-400"
+              >
+                <NativeSelectOption value="all">All categories</NativeSelectOption>
+                {categories.map((category) => (
+                  <NativeSelectOption key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-zinc-400">
-              Preço:
+              Price:
             </label>
             <ToggleGroup
               type="single"
@@ -86,17 +97,17 @@ export default function ProductFilter({ products }: ProductFilterProps) {
               variant="outline"
             >
               <ToggleGroupItem value="asc" aria-label="Preço crescente" className="text-zinc-400">
-                Menor
+                Less
               </ToggleGroupItem>
               <ToggleGroupItem value="desc" aria-label="Preço decrescente" className="text-zinc-400">
-                Maior
+                Major
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
 
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-zinc-400">
-              Nome:
+              Name:
             </label>
             <ToggleGroup
               type="single"
@@ -114,7 +125,7 @@ export default function ProductFilter({ products }: ProductFilterProps) {
           </div>
 
           <span className="text-sm text-zinc-500 ml-auto">
-            {filteredProducts.length} produto(s) encontrado(s)
+            {filteredProducts.length} product(s) found
           </span>
         </div>
       </div>

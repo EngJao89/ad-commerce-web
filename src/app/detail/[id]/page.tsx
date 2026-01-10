@@ -52,7 +52,7 @@ export default async function ProductDetailPage({
                   </span>
                 </div>
                 <span className="text-zinc-500">
-                  ({product.rating.count} avaliações)
+                  ({product.rating.count} ratings)
                 </span>
               </div>
             )}
@@ -61,7 +61,7 @@ export default async function ProductDetailPage({
           <Separator className="bg-zinc-700" />
 
           <div>
-            <h2 className="text-2xl font-bold text-white mb-2">Preço</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">Price</h2>
             <p className="text-4xl font-bold text-zinc-400">
               {formatPrice(product.price)}
             </p>
@@ -71,7 +71,7 @@ export default async function ProductDetailPage({
 
           <div>
             <h2 className="text-xl font-semibold text-white mb-3">
-              Descrição
+              Description
             </h2>
             <p className="text-zinc-400 leading-relaxed">
               {product.description}
@@ -82,7 +82,7 @@ export default async function ProductDetailPage({
 
           <div className="flex flex-col gap-4">
             <label className="text-sm font-medium text-zinc-400">
-              Quantidade
+              Quantity
             </label>
             <ProductQuantityControls productId={product.id} />
           </div>

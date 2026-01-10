@@ -22,7 +22,7 @@ export default function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Produtos</NavigationMenuTrigger>
+              <NavigationMenuTrigger>Products</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                   <li>
@@ -32,10 +32,10 @@ export default function Header() {
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">
-                          Todos os Produtos
+                          All Products
                         </div>
                         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Explore nossa coleção completa de produtos
+                          Explore our complete product collection.
                         </p>
                       </Link>
                     </NavigationMenuLink>
@@ -47,10 +47,10 @@ export default function Header() {
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">
-                          Eletrônicos
+                          Eletronics
                         </div>
                         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Smartphones, laptops e muito mais
+                          Smartphones, laptops, and much more.
                         </p>
                       </Link>
                     </NavigationMenuLink>
@@ -62,10 +62,25 @@ export default function Header() {
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">
-                          Roupas
+                          Mens Clothing
                         </div>
                         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Moda e vestuário para todos os estilos
+                          Mens Fashion and apparel for all styles
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                  </li>
+                  <li>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="/products?category=clothing"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      >
+                        <div className="text-sm font-medium leading-none">
+                          Womens Clothing
+                        </div>
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          Womens Fashion and apparel for all styles
                         </p>
                       </Link>
                     </NavigationMenuLink>
@@ -77,10 +92,10 @@ export default function Header() {
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">
-                          Joias
+                          Jewelery
                         </div>
                         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Acessórios e joias elegantes
+                          Stylish accessories and elegant jewelry
                         </p>
                       </Link>
                     </NavigationMenuLink>
@@ -94,7 +109,7 @@ export default function Header() {
                   href="/about"
                   className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                 >
-                  Sobre
+                  About
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -104,7 +119,7 @@ export default function Header() {
                   href="/contact"
                   className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                 >
-                  Contato
+                  Contact
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -114,7 +129,7 @@ export default function Header() {
         <Link
           href="/cart"
           className="flex items-center justify-center rounded-md p-2 hover:bg-accent hover:text-accent-foreground transition-colors"
-          aria-label="Carrinho de compras"
+          aria-label="Shopping cart"
         >
           <ShoppingCart className="h-5 w-5 text-white hover:text-zinc-900" />
         </Link>
