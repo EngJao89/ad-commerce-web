@@ -1,24 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ProductQuantityControls from '../ProductQuantityControls';
-import * as toastModule from '@/lib/toast';
-
-jest.mock('@/lib/toast', () => ({
-  showToast: {
-    success: jest.fn(),
-    warning: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-  },
-}));
 
 describe('ProductQuantityControls', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   const getIconButtons = () => {
     const buttons = screen.getAllByRole('button');
-    return buttons.filter(btn => btn.querySelector('svg') && !btn.textContent?.includes('Add'));
+    return buttons.filter(btn => btn.querySelector('svg'));
   };
 
   it('should render quantity controls', () => {
@@ -26,8 +12,7 @@ describe('ProductQuantityControls', () => {
 
     expect(screen.getByRole('spinbutton')).toBeInTheDocument();
     const buttons = screen.getAllByRole('button');
-    expect(buttons.length).toBeGreaterThanOrEqual(3);
-    expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument();
+    expect(buttons.length).toBeGreaterThanOrEqual(2); // Minus and Plus buttons
   });
 
   it('should initialize with quantity 0', () => {
@@ -82,77 +67,45 @@ describe('ProductQuantityControls', () => {
     }
   });
 
-  it('should disable add to cart button when quantity is 0', () => {
-    render(<ProductQuantityControls productId={1} />);
-
-    const addToCartButton = screen.getByRole('button', { name: /add to cart/i });
-    expect(addToCartButton).toBeDisabled();
-  });
-
-  it('should enable add to cart button when quantity is greater than 0', () => {
+  it('should not decrease quantity below 0', () => {
     render(<ProductQuantityControls productId={1} />);
 
     const iconButtons = getIconButtons();
-    const plusButton = iconButtons[1];
-    const addToCartButton = screen.getByRole('button', { name: /add to cart/i });
-
-    if (plusButton) {
-      fireEvent.click(plusButton);
-      expect(addToCartButton).not.toBeDisabled();
-    }
-  });
-
-  it('should show success toast when adding item to cart', () => {
-    render(<ProductQuantityControls productId={1} />);
-
-    const iconButtons = getIconButtons();
-    const plusButton = iconButtons[1];
-    const addToCartButton = screen.getByRole('button', { name: /add to cart/i });
-
-    if (plusButton) {
-      fireEvent.click(plusButton);
-      fireEvent.click(addToCartButton);
-
-      expect(toastModule.showToast.success).toHaveBeenCalledWith(
-        '1 item of product #1 added to cart successfully!'
-      );
-    }
-  });
-
-  it('should show success toast with plural when adding multiple items', () => {
-    render(<ProductQuantityControls productId={1} />);
-
-    const iconButtons = getIconButtons();
-    const plusButton = iconButtons[1];
-    const addToCartButton = screen.getByRole('button', { name: /add to cart/i });
-
-    if (plusButton) {
-      fireEvent.click(plusButton);
-      fireEvent.click(plusButton);
-      fireEvent.click(addToCartButton);
-
-      expect(toastModule.showToast.success).toHaveBeenCalledWith(
-        '2 items of product #1 added to cart successfully!'
-      );
-    }
-  });
-
-  it('should reset quantity to 0 after adding to cart', () => {
-    render(<ProductQuantityControls productId={1} />);
-
-    const iconButtons = getIconButtons();
-    const plusButton = iconButtons[1];
-    const addToCartButton = screen.getByRole('button', { name: /add to cart/i });
+    const minusButton = iconButtons[0];
     const quantityInput = screen.getByRole('spinbutton');
 
-    if (plusButton) {
-      fireEvent.click(plusButton);
-      fireEvent.click(plusButton);
-      expect(quantityInput).toHaveValue(2);
+    expect(minusButton).toBeDisabled();
+    expect(quantityInput).toHaveValue(0);
 
-      fireEvent.click(addToCartButton);
-      expect(quantityInput).toHaveValue(0);
-    }
+    fireEvent.click(minusButton);
+    expect(quantityInput).toHaveValue(0);
+  });
+
+  it('should handle empty input value', () => {
+    render(<ProductQuantityControls productId={1} />);
+
+    const quantityInput = screen.getByRole('spinbutton');
+
+    fireEvent.change(quantityInput, { target: { value: '' } });
+    expect(quantityInput).toHaveValue(0);
+  });
+
+  it('should handle invalid input values', () => {
+    render(<ProductQuantityControls productId={1} />);
+
+    const quantityInput = screen.getByRole('spinbutton');
+
+    fireEvent.change(quantityInput, { target: { value: 'abc' } });
+    expect(quantityInput).toHaveValue(0);
+  });
+
+  it('should handle large input values', () => {
+    render(<ProductQuantityControls productId={1} />);
+
+    const quantityInput = screen.getByRole('spinbutton');
+
+    fireEvent.change(quantityInput, { target: { value: '999' } });
+    expect(quantityInput).toHaveValue(999);
   });
 
   it('should update quantity when input value changes', () => {
@@ -171,5 +124,84 @@ describe('ProductQuantityControls', () => {
 
     fireEvent.change(quantityInput, { target: { value: '-5' } });
     expect(quantityInput).toHaveValue(0);
+  });
+
+  it('should enable minus button when quantity is greater than 0', () => {
+    render(<ProductQuantityControls productId={1} />);
+
+    const iconButtons = getIconButtons();
+    const plusButton = iconButtons[1];
+    const minusButton = iconButtons[0];
+
+    expect(minusButton).toBeDisabled();
+
+    if (plusButton) {
+      fireEvent.click(plusButton);
+      expect(minusButton).not.toBeDisabled();
+    }
+  });
+
+  it('should handle multiple rapid clicks on increase button', () => {
+    render(<ProductQuantityControls productId={1} />);
+
+    const iconButtons = getIconButtons();
+    const plusButton = iconButtons[1];
+    const quantityInput = screen.getByRole('spinbutton');
+
+    if (plusButton) {
+      fireEvent.click(plusButton);
+      fireEvent.click(plusButton);
+      fireEvent.click(plusButton);
+      expect(quantityInput).toHaveValue(3);
+    }
+  });
+
+  it('should handle multiple rapid clicks on decrease button', () => {
+    render(<ProductQuantityControls productId={1} />);
+
+    const iconButtons = getIconButtons();
+    const plusButton = iconButtons[1];
+    const minusButton = iconButtons[0];
+    const quantityInput = screen.getByRole('spinbutton');
+
+    if (plusButton && minusButton) {
+      fireEvent.click(plusButton);
+      fireEvent.click(plusButton);
+      fireEvent.click(plusButton);
+      fireEvent.click(plusButton);
+      fireEvent.click(plusButton);
+      expect(quantityInput).toHaveValue(5);
+
+      fireEvent.click(minusButton);
+      fireEvent.click(minusButton);
+      fireEvent.click(minusButton);
+      expect(quantityInput).toHaveValue(2);
+    }
+  });
+
+  it('should accept different productId values', () => {
+    const { rerender } = render(<ProductQuantityControls productId={1} />);
+    
+    expect(screen.getByRole('spinbutton')).toBeInTheDocument();
+
+    rerender(<ProductQuantityControls productId={999} />);
+    expect(screen.getByRole('spinbutton')).toBeInTheDocument();
+  });
+
+  it('should maintain quantity state when productId changes', () => {
+    const { rerender } = render(<ProductQuantityControls productId={1} />);
+
+    const iconButtons = getIconButtons();
+    const plusButton = iconButtons[1];
+    const quantityInput = screen.getByRole('spinbutton');
+
+    if (plusButton) {
+      fireEvent.click(plusButton);
+      fireEvent.click(plusButton);
+      expect(quantityInput).toHaveValue(2);
+
+      rerender(<ProductQuantityControls productId={2} />);
+      expect(quantityInput).toHaveValue(2);
+    }
   });
 });
