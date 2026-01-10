@@ -42,6 +42,8 @@ Este é um projeto de um e-commerce fictício chamado "AD Commerce". O projeto f
 - Shadcn UI - A escolha do design system foi feita para dar um visual moderno e consistente ao projeto.
 - Commitizen - Essa lib foi escolhida para facilitar o commit dos commits e garantir que o commit tenha um formato padrão.
 - Axios - Essa lib foi escolhida para fazer as requisições à API com tratamento de erros e response data.
+- Jest - Essa lib foi escolhida para testar o projeto e garantir que o projeto funcione corretamente.
+- React Toastify - Essa lib foi escolhida para exibir as notificações de erro e sucesso ao usuário.
 
 ## Trade-offs e Decisões Arquiteturais
 
@@ -138,3 +140,32 @@ Este projeto faz uso de várias decisões arquiteturais que envolvem trade-offs.
 
 - ✅ **Prós:** Fácil de usar, muitas opções de customização, bom suporte
 - ❌ **Contras:** Dependência extra, pode ser substituído por soluções mais leves, requer CSS adicional
+
+### Padronização de Commits: Commitizen
+
+**Decisão:** Commitizen com conventional-changelog para padronizar mensagens de commit
+
+**Trade-offs:**
+
+- ✅ **Prós:** Commits consistentes e semânticos, facilita geração automática de changelog, melhora rastreabilidade do histórico, ajuda na colaboração em equipe
+- ❌ **Contras:** Requer instalação e configuração inicial, desenvolvedores precisam aprender o formato, pode ser mais lento que commits diretos, adiciona uma etapa extra no workflow
+
+**Exemplo:** Commits seguem o formato `type(scope): description`, como `feat(products): add product filter component` ou `fix(api): handle 403 error in product fetch`.
+
+### Testes: Jest
+
+**Decisão:** Jest como framework de testes com Testing Library para testes de componentes
+
+**Trade-offs:**
+
+- ✅ **Prós:** Configuração integrada para React/Next.js, cobertura de código nativa, mocks poderosos, boa integração com TypeScript, suporte a snapshots
+- ❌ **Contras:** Bundle maior, pode ser mais lento que alternativas como Vitest, configuração inicial mais complexa, requer setup adicional para Next.js (next/jest)
+
+# Futuras melhorias
+
+- Adicionar carrinhos de compras persistentes;
+- Adicionar checkout com plataforma de pagamento;
+- Adicionar página de favoritos;
+- Adicionar página de perfil do usuário;
+- Adicionar página de histórico de compras;
+- Adicionar pagina de autenticação;
