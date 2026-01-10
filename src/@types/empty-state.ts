@@ -1,0 +1,6 @@
+export type EmptyStateProps = {
+  title?: string;
+  message?: string;
+  actionLabel?: string;
+  actionHref?: string;
+}

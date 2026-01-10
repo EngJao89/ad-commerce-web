@@ -34,3 +34,8 @@ export type SortByName = "asc" | "desc" | null;
 export type ProductDetailPageProps = {
   params: Promise<{ id: string }>;
 }
+
+export interface ProductFilterComponentProps extends ProductFilterProps {
+  defaultCategory?: string;
+  hideCategoryFilter?: boolean;
+}

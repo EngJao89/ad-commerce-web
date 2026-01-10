@@ -1,15 +1,11 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import type { SortByPrice, SortByName, ProductFilterComponentProps } from "@/@types/products";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import ProductCard from "@/components/ProductCard";
-import type { ProductFilterProps, SortByPrice, SortByName } from "@/@types/products";
-
-interface ProductFilterComponentProps extends ProductFilterProps {
-  defaultCategory?: string;
-  hideCategoryFilter?: boolean;
-}
+import EmptyState from "@/components/EmptyState";
 
 export default function ProductFilter({ 
   products, 
@@ -129,11 +125,24 @@ export default function ProductFilter({
           </span>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => (
-          <ProductCard key={product.id} {...product} />
-        ))}
-      </div>
+      {filteredProducts.length === 0 ? (
+        <EmptyState
+          title="No products found"
+          message={
+            selectedCategory !== "all"
+              ? `No products found in the "${selectedCategory}" category. Try selecting a different category or clearing the filters.`
+              : "No products available at the moment. Please try again later."
+          }
+          actionLabel={selectedCategory !== "all" ? "View all products" : undefined}
+          actionHref={selectedCategory !== "all" ? "/" : undefined}
+        />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} {...product} />
+          ))}
+        </div>
+      )}
     </>
   );
 }
