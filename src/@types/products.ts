@@ -23,3 +23,10 @@ export type ProductDetailProps = {
     count: number;
   };
 }
+
+export type ProductFilterProps = {
+  products: Product[];
+}
+
+export type SortByPrice = "asc" | "desc" | null;
+export type SortByName = "asc" | "desc" | null;
