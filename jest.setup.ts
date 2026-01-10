@@ -14,14 +14,18 @@ jest.mock('next/image', () => ({
     priority?: boolean;
     sizes?: string;
   }) => {
-    return React.createElement('img', props);
+    const { fill, ...imgProps } = props;
+    return React.createElement('img', {
+      ...imgProps,
+      ...(fill ? { style: { width: '100%', height: '100%', objectFit: 'cover' } } : {}),
+    });
   },
 }));
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => {
-    return React.createElement('a', { href }, children);
+  default: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => {
+    return React.createElement('a', { href, ...props }, children);
   },
 }));
 
