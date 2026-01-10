@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { Minus, Plus } from "lucide-react";
+
+import { showToast } from "@/lib/toast";
+import type { ProductQuantityControlsProps } from "@/@types/products";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShoppingCart, Minus, Plus } from "lucide-react";
-import { showToast } from "@/lib/toast";
-
-interface ProductQuantityControlsProps {
-  productId: number;
-}
 
 export default function ProductQuantityControls({
   productId,
@@ -68,16 +66,6 @@ export default function ProductQuantityControls({
           <Plus className="h-4 w-4" />
         </Button>
       </ButtonGroup>
-      <Button
-        variant="default"
-        onClick={handleAddToCart}
-        disabled={quantity === 0}
-        className="w-full text-white"
-        size="lg"
-      >
-        <ShoppingCart className="h-5 w-5 mr-2" />
-        Add to Cart
-      </Button>
     </div>
   );
 }

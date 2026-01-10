@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PackageX } from "lucide-react";
+
 import type { EmptyStateProps } from "@/@types/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

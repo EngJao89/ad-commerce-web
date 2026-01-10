@@ -1,13 +1,9 @@
-import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import type { LoadingSpinnerProps } from "@/@types/loagind";
+import { Spinner } from "@/components/ui/spinner";
 
-interface LoadingSpinnerProps {
-  size?: "sm" | "md" | "lg";
-  className?: string;
-}
-
-export default function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) {
-  const sizeClasses = {
+export default function LoadingSpinner({ size = "md", className }: Readonly<LoadingSpinnerProps>) {
+  const sizeClasses: Record<"sm" | "md" | "lg", string> = {
     sm: "size-4",
     md: "size-6",
     lg: "size-8",

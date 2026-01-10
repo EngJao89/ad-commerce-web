@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { Minus, Plus } from "lucide-react";
+
+import { formatPrice } from "@/lib/utils";
+import type { ProductDetailProps } from "@/@types/products";
 import {
   Card,
   CardContent,
@@ -12,10 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { ShoppingCart, Minus, Plus } from "lucide-react";
-import type { ProductDetailProps } from "@/@types/products";
-import { formatPrice } from "@/lib/utils";
 
 export default function ProductCard({
   id,

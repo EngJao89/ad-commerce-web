@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Star } from "lucide-react";
-import api from "@/lib/axios";
 
+import api from "@/lib/axios";
 import { showApiError } from "@/lib/toast";
 import { formatPrice } from "@/lib/utils";
 import type { Product, ProductDetailClientProps } from "@/@types/products";

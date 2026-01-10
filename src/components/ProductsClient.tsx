@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import api from "@/lib/axios";
 import { showApiError } from "@/lib/toast";
 import type { Product } from "@/@types/products";
