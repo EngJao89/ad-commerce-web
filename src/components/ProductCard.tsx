@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { Heart, Minus, Plus, ShoppingCart } from "lucide-react";
 
 import { formatPrice } from "@/lib/utils";
 import { showToast } from "@/lib/toast";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import type { ProductDetailProps, Product } from "@/@types/products";
 import {
   Card,
@@ -31,6 +32,8 @@ export default function ProductCard({
 }: Readonly<ProductDetailProps>) {
   const [quantity, setQuantity] = useState(0);
   const { add } = useCart();
+  const { toggle: toggleFavorite, isFavorite } = useFavorites();
+  const favorited = isFavorite(id);
 
   const handleDecrease = () => {
     if (quantity > 0) {
@@ -63,6 +66,14 @@ export default function ProductCard({
       showToast.warning("Please select a quantity first");
     }
   };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(product);
+    showToast.success(favorited ? "Removed from favorites" : "Added to favorites");
+  };
+
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
       <CardHeader className="p-0 relative">
@@ -82,6 +93,18 @@ export default function ProductCard({
             {category}
           </Badge>
         </div>
+        <Button
+          type="button"
+          variant="secondary"
+          size="icon"
+          className="absolute top-4 right-4 h-9 w-9 rounded-full bg-white/90 dark:bg-zinc-800/90 hover:bg-white dark:hover:bg-zinc-700 shadow-md"
+          onClick={handleToggleFavorite}
+          aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Heart
+            className={`h-5 w-5 ${favorited ? "fill-red-500 text-red-500" : "text-zinc-600"}`}
+          />
+        </Button>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-2 pt-4">
         <Link href={`/detail/${id}`}>

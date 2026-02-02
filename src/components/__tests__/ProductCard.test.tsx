@@ -1,9 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ProductCard from '../ProductCard';
 import { CartProvider } from '@/contexts/CartContext';
+import { FavoritesProvider } from '@/contexts/FavoritesContext';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <CartProvider>{children}</CartProvider>
+  <CartProvider>
+    <FavoritesProvider>{children}</FavoritesProvider>
+  </CartProvider>
 );
 
 const mockProduct = {
@@ -67,61 +70,44 @@ describe('ProductCard', () => {
     render(<ProductCard {...mockProduct} />, { wrapper });
 
     const buttons = screen.getAllByRole('button');
-    const plusButton = buttons.find(btn => btn.querySelector('svg')?.getAttribute('data-lucide') === 'plus' || btn.innerHTML.includes('Plus'));
+    const plusButton = buttons[2];
     const quantityInput = screen.getByRole('spinbutton');
 
-    if (plusButton) {
-      fireEvent.click(plusButton);
-      expect(quantityInput).toHaveValue(1);
+    fireEvent.click(plusButton);
+    expect(quantityInput).toHaveValue(1);
 
-      fireEvent.click(plusButton);
-      expect(quantityInput).toHaveValue(2);
-    } else {
-      const iconButtons = buttons.filter(btn => btn.querySelector('svg'));
-      if (iconButtons.length >= 2) {
-        fireEvent.click(iconButtons[1]);
-        expect(quantityInput).toHaveValue(1);
-      }
-    }
+    fireEvent.click(plusButton);
+    expect(quantityInput).toHaveValue(2);
   });
 
   it('should decrease quantity when minus button is clicked', () => {
     render(<ProductCard {...mockProduct} />, { wrapper });
 
     const buttons = screen.getAllByRole('button');
+    const minusButton = buttons[1];
+    const plusButton = buttons[2];
     const quantityInput = screen.getByRole('spinbutton');
 
-    const iconButtons = buttons.filter(btn => btn.querySelector('svg') && !btn.textContent?.includes('Add'));
+    fireEvent.click(plusButton);
+    fireEvent.click(plusButton);
+    expect(quantityInput).toHaveValue(2);
 
-    if (iconButtons.length >= 2) {
-      const plusButton = iconButtons[1];
-      const minusButton = iconButtons[0];
-
-      fireEvent.click(plusButton);
-      fireEvent.click(plusButton);
-      expect(quantityInput).toHaveValue(2);
-
-      fireEvent.click(minusButton);
-      expect(quantityInput).toHaveValue(1);
-    }
+    fireEvent.click(minusButton);
+    expect(quantityInput).toHaveValue(1);
   });
 
   it('should not decrease quantity below 0', () => {
     render(<ProductCard {...mockProduct} />, { wrapper });
 
     const buttons = screen.getAllByRole('button');
+    const minusButton = buttons[1];
     const quantityInput = screen.getByRole('spinbutton');
 
-    const iconButtons = buttons.filter(btn => btn.querySelector('svg') && !btn.textContent?.includes('Add'));
-    const minusButton = iconButtons[0];
+    expect(minusButton).toBeDisabled();
+    expect(quantityInput).toHaveValue(0);
 
-    if (minusButton) {
-      expect(minusButton).toBeDisabled();
-      expect(quantityInput).toHaveValue(0);
-
-      fireEvent.click(minusButton);
-      expect(quantityInput).toHaveValue(0);
-    }
+    fireEvent.click(minusButton);
+    expect(quantityInput).toHaveValue(0);
   });
 
   it('should update quantity when input value changes', () => {
