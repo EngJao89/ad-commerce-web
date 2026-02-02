@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 import { formatPrice } from "@/lib/utils";
-import type { ProductDetailProps } from "@/@types/products";
+import { showToast } from "@/lib/toast";
+import { useCart } from "@/contexts/CartContext";
+import type { ProductDetailProps, Product } from "@/@types/products";
 import {
   Card,
   CardContent,
@@ -22,11 +24,13 @@ export default function ProductCard({
   id,
   title,
   price,
+  description,
   category,
   image,
   rating,
-}: ProductDetailProps) {
+}: Readonly<ProductDetailProps>) {
   const [quantity, setQuantity] = useState(0);
+  const { add } = useCart();
 
   const handleDecrease = () => {
     if (quantity > 0) {
@@ -38,9 +42,25 @@ export default function ProductCard({
     setQuantity(quantity + 1);
   };
 
+  const product: Product = {
+    id,
+    title,
+    price,
+    description: description ?? "",
+    category,
+    image,
+    rating,
+  };
+
   const handleAddToCart = () => {
     if (quantity > 0) {
-      console.log(`Adicionar ${quantity} unidades do produto ${id} ao carrinho`);
+      add(product, quantity);
+      showToast.success(
+        `${quantity} item${quantity > 1 ? "s" : ""} added to cart`
+      );
+      setQuantity(0);
+    } else {
+      showToast.warning("Please select a quantity first");
     }
   };
   return (
@@ -76,41 +96,49 @@ export default function ProductCard({
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex items-center justify-between pt-2">
-        <div className="flex flex-col">
+      <CardFooter className="flex flex-col gap-3 pt-2">
+        <div className="flex items-center justify-between w-full">
           <span className="text-2xl font-bold text-zinc-400">
             {formatPrice(price)}
           </span>
+          <ButtonGroup>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleDecrease}
+              disabled={quantity === 0}
+              className="text-zinc-400"
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            <Input
+              type="number"
+              value={quantity}
+              onChange={(e) => {
+                const value = Number.parseInt(e.target.value) || 0;
+                setQuantity(Math.max(0, value));
+              }}
+              min={0}
+              className="w-16 text-center text-zinc-400"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleIncrease}
+              className="text-zinc-400"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </ButtonGroup>
         </div>
-        <ButtonGroup>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleDecrease}
-            disabled={quantity === 0}
-            className="text-zinc-400"
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
-          <Input
-            type="number"
-            value={quantity}
-            onChange={(e) => {
-              const value = Number.parseInt(e.target.value) || 0;
-              setQuantity(Math.max(0, value));
-            }}
-            min={0}
-            className="w-16 text-center text-zinc-400"
-          />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleIncrease}
-            className="text-zinc-400"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </ButtonGroup>
+        <Button
+          onClick={handleAddToCart}
+          disabled={quantity === 0}
+          className="w-full"
+        >
+          <ShoppingCart className="h-4 w-4 mr-2" />
+          Add to cart
+        </Button>
       </CardFooter>
     </Card>
   );

@@ -8,8 +8,11 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 export default function Header() {
+  const { totalItems } = useCart();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-white/5 backdrop-blur-md supports-backdrop-filter:bg-white/10 shadow-lg shadow-black/5">
       <div className="container flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
@@ -34,10 +37,15 @@ export default function Header() {
 
         <Link
           href="/cart"
-          className="flex items-center justify-center rounded-md p-2 hover:bg-accent hover:text-accent-foreground transition-colors"
-          aria-label="Shopping cart"
+          className="relative flex items-center justify-center rounded-md p-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+          aria-label={totalItems > 0 ? `Shopping cart, ${totalItems} items` : "Shopping cart"}
         >
           <ShoppingCart className="h-5 w-5 text-white hover:text-zinc-900" />
+          {totalItems > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+              {totalItems > 99 ? "99+" : totalItems}
+            </span>
+          )}
         </Link>
       </div>
     </header>

@@ -1,6 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ProductFilter from '../ProductFilter';
+import { CartProvider } from '@/contexts/CartContext';
 import type { Product } from '@/@types/products';
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <CartProvider>{children}</CartProvider>
+);
 
 const mockProducts: Product[] = [
   {
@@ -33,7 +38,7 @@ const mockProducts: Product[] = [
 
 describe('ProductFilter', () => {
   it('should render all products by default', () => {
-    render(<ProductFilter products={mockProducts} />);
+    render(<ProductFilter products={mockProducts} />, { wrapper });
 
     expect(screen.getByText('Product A')).toBeInTheDocument();
     expect(screen.getByText('Product B')).toBeInTheDocument();
@@ -42,7 +47,7 @@ describe('ProductFilter', () => {
   });
 
   it('should filter products by category', () => {
-    render(<ProductFilter products={mockProducts} />);
+    render(<ProductFilter products={mockProducts} />, { wrapper });
 
     const categorySelect = screen.getByLabelText(/category/i);
     fireEvent.change(categorySelect, { target: { value: 'electronics' } });
@@ -54,7 +59,7 @@ describe('ProductFilter', () => {
   });
 
   it('should show all products when "all" category is selected', () => {
-    render(<ProductFilter products={mockProducts} />);
+    render(<ProductFilter products={mockProducts} />, { wrapper });
 
     const categorySelect = screen.getByLabelText(/category/i);
     fireEvent.change(categorySelect, { target: { value: 'electronics' } });
@@ -66,7 +71,7 @@ describe('ProductFilter', () => {
   });
 
   it('should sort products by price ascending', () => {
-    render(<ProductFilter products={mockProducts} />);
+    render(<ProductFilter products={mockProducts} />, { wrapper });
 
     const priceToggle = screen.getByLabelText(/preço crescente/i);
     fireEvent.click(priceToggle);
@@ -76,7 +81,7 @@ describe('ProductFilter', () => {
   });
 
   it('should sort products by price descending', () => {
-    render(<ProductFilter products={mockProducts} />);
+    render(<ProductFilter products={mockProducts} />, { wrapper });
 
     const priceToggle = screen.getByLabelText(/preço decrescente/i);
     fireEvent.click(priceToggle);
@@ -86,7 +91,7 @@ describe('ProductFilter', () => {
   });
 
   it('should sort products by name A-Z', () => {
-    render(<ProductFilter products={mockProducts} />);
+    render(<ProductFilter products={mockProducts} />, { wrapper });
 
     const nameToggle = screen.getByLabelText(/nome a-z/i);
     fireEvent.click(nameToggle);
@@ -98,7 +103,7 @@ describe('ProductFilter', () => {
   });
 
   it('should sort products by name Z-A', () => {
-    render(<ProductFilter products={mockProducts} />);
+    render(<ProductFilter products={mockProducts} />, { wrapper });
 
     const nameToggle = screen.getByLabelText(/nome z-a/i);
     fireEvent.click(nameToggle);
@@ -110,7 +115,7 @@ describe('ProductFilter', () => {
   });
 
   it('should show empty state when no products match filter', () => {
-    render(<ProductFilter products={mockProducts} />);
+    render(<ProductFilter products={mockProducts} />, { wrapper });
 
     const categorySelect = screen.getByLabelText(/category/i);
     fireEvent.change(categorySelect, { target: { value: 'nonexistent' } });
@@ -120,13 +125,13 @@ describe('ProductFilter', () => {
   });
 
   it('should hide category filter when hideCategoryFilter is true', () => {
-    render(<ProductFilter products={mockProducts} hideCategoryFilter />);
+    render(<ProductFilter products={mockProducts} hideCategoryFilter />, { wrapper });
 
     expect(screen.queryByLabelText(/category/i)).not.toBeInTheDocument();
   });
 
   it('should use defaultCategory prop', () => {
-    render(<ProductFilter products={mockProducts} defaultCategory="electronics" />);
+    render(<ProductFilter products={mockProducts} defaultCategory="electronics" />, { wrapper });
 
     const categorySelect = screen.getByLabelText(/category/i) as HTMLSelectElement;
     expect(categorySelect.value).toBe('electronics');
@@ -137,7 +142,7 @@ describe('ProductFilter', () => {
   });
 
   it('should combine category filter and price sort', () => {
-    render(<ProductFilter products={mockProducts} />);
+    render(<ProductFilter products={mockProducts} />, { wrapper });
 
     const categorySelect = screen.getByLabelText(/category/i);
     fireEvent.change(categorySelect, { target: { value: 'electronics' } });
