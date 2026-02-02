@@ -100,18 +100,17 @@ describe('ProductDetailClient', () => {
     expect(screen.queryByText(/ratings/)).not.toBeInTheDocument();
   });
 
-  it('should render back to products link', async () => {
-    (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
+  it('should render back to products link when product is not found', async () => {
+    (api.get as jest.Mock).mockResolvedValue({ data: null });
     
     render(<ProductDetailClient productId="1" />);
     
     await waitFor(() => {
-      expect(screen.getByText('Back to products')).toBeInTheDocument();
+      expect(screen.getByText('Go back to products')).toBeInTheDocument();
     });
     
-    const backLinks = screen.getAllByRole('link');
-    const backLink = backLinks.find(link => link.getAttribute('href') === '/');
-    expect(backLink).toBeDefined();
+    const backLink = screen.getByRole('link', { name: /go back to products/i });
+    expect(backLink).toHaveAttribute('href', '/');
   });
 
   it('should render ProductQuantityControls with correct productId', async () => {

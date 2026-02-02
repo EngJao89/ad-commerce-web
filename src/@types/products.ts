@@ -46,6 +46,7 @@ export type ProductDetailClientProps = {
 
 export type ProductQuantityControlsProps = {
   productId: number;
+  product?: Product;
 }
 
 export type ProductsGridSkeletonProps = {

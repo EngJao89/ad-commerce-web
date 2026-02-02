@@ -125,7 +125,7 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
             <label className="text-sm font-medium text-zinc-400">
               Quantity
             </label>
-            <ProductQuantityControls productId={product.id} />
+            <ProductQuantityControls productId={product.id} product={product} />
           </div>
         </div>
       </div>

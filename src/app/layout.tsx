@@ -4,6 +4,7 @@ import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "@/components/Header";
 import ToastContainer from "@/components/ToastContainer";
+import Providers from "@/components/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +31,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-900`}
       >
-        <Header />
-        {children}
-        <ToastContainer />
+        <Providers>
+          <Header />
+          {children}
+          <ToastContainer />
+        </Providers>
       </body>
     </html>
   );

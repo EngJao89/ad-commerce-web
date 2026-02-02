@@ -1,5 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ProductQuantityControls from '../ProductQuantityControls';
+import { CartProvider } from '@/contexts/CartContext';
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <CartProvider>{children}</CartProvider>
+);
 
 describe('ProductQuantityControls', () => {
   const getIconButtons = () => {
@@ -8,7 +13,7 @@ describe('ProductQuantityControls', () => {
   };
 
   it('should render quantity controls', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     expect(screen.getByRole('spinbutton')).toBeInTheDocument();
     const buttons = screen.getAllByRole('button');
@@ -16,14 +21,14 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should initialize with quantity 0', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const quantityInput = screen.getByRole('spinbutton');
     expect(quantityInput).toHaveValue(0);
   });
 
   it('should increase quantity when plus button is clicked', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const iconButtons = getIconButtons();
     const plusButton = iconButtons[1];
@@ -39,7 +44,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should decrease quantity when minus button is clicked', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const iconButtons = getIconButtons();
     const plusButton = iconButtons[1];
@@ -57,7 +62,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should disable minus button when quantity is 0', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const iconButtons = getIconButtons();
     const minusButton = iconButtons[0];
@@ -68,7 +73,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should not decrease quantity below 0', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const iconButtons = getIconButtons();
     const minusButton = iconButtons[0];
@@ -82,7 +87,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should handle empty input value', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const quantityInput = screen.getByRole('spinbutton');
 
@@ -91,7 +96,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should handle invalid input values', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const quantityInput = screen.getByRole('spinbutton');
 
@@ -100,7 +105,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should handle large input values', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const quantityInput = screen.getByRole('spinbutton');
 
@@ -109,7 +114,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should update quantity when input value changes', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const quantityInput = screen.getByRole('spinbutton');
 
@@ -118,7 +123,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should not allow negative quantity in input', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const quantityInput = screen.getByRole('spinbutton');
 
@@ -127,7 +132,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should enable minus button when quantity is greater than 0', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const iconButtons = getIconButtons();
     const plusButton = iconButtons[1];
@@ -142,7 +147,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should handle multiple rapid clicks on increase button', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const iconButtons = getIconButtons();
     const plusButton = iconButtons[1];
@@ -157,7 +162,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should handle multiple rapid clicks on decrease button', () => {
-    render(<ProductQuantityControls productId={1} />);
+    render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const iconButtons = getIconButtons();
     const plusButton = iconButtons[1];
@@ -180,7 +185,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should accept different productId values', () => {
-    const { rerender } = render(<ProductQuantityControls productId={1} />);
+    const { rerender } = render(<ProductQuantityControls productId={1} />, { wrapper });
     
     expect(screen.getByRole('spinbutton')).toBeInTheDocument();
 
@@ -189,7 +194,7 @@ describe('ProductQuantityControls', () => {
   });
 
   it('should maintain quantity state when productId changes', () => {
-    const { rerender } = render(<ProductQuantityControls productId={1} />);
+    const { rerender } = render(<ProductQuantityControls productId={1} />, { wrapper });
 
     const iconButtons = getIconButtons();
     const plusButton = iconButtons[1];

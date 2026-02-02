@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 import { showToast } from "@/lib/toast";
+import { useCart } from "@/contexts/CartContext";
 import type { ProductQuantityControlsProps } from "@/@types/products";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,10 @@ import { Input } from "@/components/ui/input";
 
 export default function ProductQuantityControls({
   productId,
+  product,
 }: Readonly<ProductQuantityControlsProps>) {
   const [quantity, setQuantity] = useState(0);
+  const { add } = useCart();
 
   const handleDecrease = () => {
     if (quantity > 0) {
@@ -25,13 +28,21 @@ export default function ProductQuantityControls({
   };
 
   const handleAddToCart = () => {
-    if (quantity > 0) {
+    if (quantity <= 0) {
+      showToast.warning("Please select a quantity first");
+      return;
+    }
+    if (product) {
+      add(product, quantity);
       showToast.success(
-        `${quantity} item${quantity > 1 ? 's' : ''} of product #${productId} added to cart successfully!`
+        `${quantity} item${quantity > 1 ? "s" : ""} added to cart`
       );
       setQuantity(0);
     } else {
-      showToast.warning("Please select a quantity first");
+      showToast.success(
+        `${quantity} item${quantity > 1 ? "s" : ""} of product #${productId} added to cart successfully!`
+      );
+      setQuantity(0);
     }
   };
 
@@ -66,6 +77,14 @@ export default function ProductQuantityControls({
           <Plus className="h-4 w-4" />
         </Button>
       </ButtonGroup>
+      <Button
+        onClick={handleAddToCart}
+        disabled={quantity === 0}
+        className="w-full sm:w-auto"
+      >
+        <ShoppingCart className="h-4 w-4 mr-2" />
+        Add to cart
+      </Button>
     </div>
   );
 }
