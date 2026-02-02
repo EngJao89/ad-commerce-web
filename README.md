@@ -163,9 +163,7 @@ Este projeto faz uso de várias decisões arquiteturais que envolvem trade-offs.
 
 # Futuras melhorias
 
-- Adicionar carrinhos de compras persistentes;
 - Adicionar checkout com plataforma de pagamento;
-- Adicionar página de favoritos;
 - Adicionar página de perfil do usuário;
 - Adicionar página de histórico de compras;
 - Adicionar pagina de autenticação;
