@@ -7,11 +7,14 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 export default function Header() {
   const { totalItems } = useCart();
+  const { items: favorites } = useFavorites();
+  const favoritesCount = favorites.length;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-white/5 backdrop-blur-md supports-backdrop-filter:bg-white/10 shadow-lg shadow-black/5">
@@ -35,18 +38,32 @@ export default function Header() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        <Link
-          href="/cart"
-          className="relative flex items-center justify-center rounded-md p-2 hover:bg-accent hover:text-accent-foreground transition-colors"
-          aria-label={totalItems > 0 ? `Shopping cart, ${totalItems} items` : "Shopping cart"}
-        >
-          <ShoppingCart className="h-5 w-5 text-white hover:text-zinc-900" />
-          {totalItems > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-              {totalItems > 99 ? "99+" : totalItems}
-            </span>
-          )}
-        </Link>
+        <div className="flex items-center gap-1">
+          <Link
+            href="/favorites"
+            className="relative flex items-center justify-center rounded-md p-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+            aria-label={favoritesCount > 0 ? `Favorites, ${favoritesCount} items` : "Favorites"}
+          >
+            <Heart className="h-5 w-5 text-white hover:text-zinc-900" />
+            {favoritesCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                {favoritesCount > 99 ? "99+" : favoritesCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            href="/cart"
+            className="relative flex items-center justify-center rounded-md p-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+            aria-label={totalItems > 0 ? `Shopping cart, ${totalItems} items` : "Shopping cart"}
+          >
+            <ShoppingCart className="h-5 w-5 text-white hover:text-zinc-900" />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                {totalItems > 99 ? "99+" : totalItems}
+              </span>
+            )}
+          </Link>
+        </div>
       </div>
     </header>
   );

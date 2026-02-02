@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Heart, Star } from "lucide-react";
 
 import api from "@/lib/axios";
-import { showApiError } from "@/lib/toast";
+import { showApiError, showToast } from "@/lib/toast";
 import { formatPrice } from "@/lib/utils";
 import type { Product, ProductDetailClientProps } from "@/@types/products";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import ProductQuantityControls from "@/components/ProductQuantityControls";
 import ProductDetailSkeleton from "@/components/ProductDetailSkeleton";
@@ -17,6 +19,7 @@ import ProductDetailSkeleton from "@/components/ProductDetailSkeleton";
 export default function ProductDetailClient({ productId }: ProductDetailClientProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toggle: toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -78,9 +81,29 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
 
         <div className="flex flex-col gap-6">
           <div>
-            <Badge variant="secondary" className="capitalize mb-4">
-              {product.category}
-            </Badge>
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <Badge variant="secondary" className="capitalize">
+                {product.category}
+              </Badge>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="rounded-full shrink-0"
+                onClick={() => {
+                  const wasFavorite = isFavorite(product.id);
+                  toggleFavorite(product);
+                  showToast.success(
+                    wasFavorite ? "Removed from favorites" : "Added to favorites"
+                  );
+                }}
+                aria-label={isFavorite(product.id) ? "Remove from favorites" : "Add to favorites"}
+              >
+                <Heart
+                  className={`h-5 w-5 ${isFavorite(product.id) ? "fill-red-500 text-red-500" : "text-zinc-500"}`}
+                />
+              </Button>
+            </div>
             <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
               {product.title}
             </h1>

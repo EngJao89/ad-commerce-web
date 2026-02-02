@@ -1,8 +1,13 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import ProductDetailClient from '../ProductDetailClient';
+import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import api from '@/lib/axios';
 import * as toastModule from '@/lib/toast';
 import type { Product } from '@/@types/products';
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <FavoritesProvider>{children}</FavoritesProvider>
+);
 
 jest.mock('@/lib/axios', () => ({
   __esModule: true,
@@ -13,6 +18,7 @@ jest.mock('@/lib/axios', () => ({
 
 jest.mock('@/lib/toast', () => ({
   showApiError: jest.fn(),
+  showToast: { success: jest.fn() },
 }));
 
 jest.mock('../ProductDetailSkeleton', () => {
@@ -57,7 +63,7 @@ describe('ProductDetailClient', () => {
   it('should show loading skeleton initially', () => {
     (api.get as jest.Mock).mockImplementation(() => new Promise(() => {})); // Never resolves
     
-    render(<ProductDetailClient productId="1" />);
+    render(<ProductDetailClient productId="1" />, { wrapper });
     
     expect(screen.getByTestId('product-detail-skeleton')).toBeInTheDocument();
   });
@@ -65,7 +71,7 @@ describe('ProductDetailClient', () => {
   it('should render product details when data is loaded', async () => {
     (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
     
-    render(<ProductDetailClient productId="1" />);
+    render(<ProductDetailClient productId="1" />, { wrapper });
     
     await waitFor(() => {
       expect(screen.getByText('Test Product')).toBeInTheDocument();
@@ -79,7 +85,7 @@ describe('ProductDetailClient', () => {
   it('should render product rating when available', async () => {
     (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
     
-    render(<ProductDetailClient productId="1" />);
+    render(<ProductDetailClient productId="1" />, { wrapper });
     
     await waitFor(() => {
       expect(screen.getByText('4.5')).toBeInTheDocument();
@@ -91,7 +97,7 @@ describe('ProductDetailClient', () => {
   it('should not render rating section when rating is not available', async () => {
     (api.get as jest.Mock).mockResolvedValue({ data: mockProductWithoutRating });
     
-    render(<ProductDetailClient productId="2" />);
+    render(<ProductDetailClient productId="2" />, { wrapper });
     
     await waitFor(() => {
       expect(screen.getByText('Product Without Rating')).toBeInTheDocument();
@@ -103,7 +109,7 @@ describe('ProductDetailClient', () => {
   it('should render back to products link when product is not found', async () => {
     (api.get as jest.Mock).mockResolvedValue({ data: null });
     
-    render(<ProductDetailClient productId="1" />);
+    render(<ProductDetailClient productId="1" />, { wrapper });
     
     await waitFor(() => {
       expect(screen.getByText('Go back to products')).toBeInTheDocument();
@@ -116,7 +122,7 @@ describe('ProductDetailClient', () => {
   it('should render ProductQuantityControls with correct productId', async () => {
     (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
     
-    render(<ProductDetailClient productId="1" />);
+    render(<ProductDetailClient productId="1" />, { wrapper });
     
     await waitFor(() => {
       expect(screen.getByTestId('product-quantity-controls')).toBeInTheDocument();
@@ -129,7 +135,7 @@ describe('ProductDetailClient', () => {
     const error = new Error('Failed to fetch product');
     (api.get as jest.Mock).mockRejectedValue(error);
     
-    render(<ProductDetailClient productId="1" />);
+    render(<ProductDetailClient productId="1" />, { wrapper });
     
     await waitFor(() => {
       expect(toastModule.showApiError).toHaveBeenCalledWith(error);
@@ -145,7 +151,7 @@ describe('ProductDetailClient', () => {
   it('should show error state with back link when product is not found', async () => {
     (api.get as jest.Mock).mockRejectedValue(new Error('Not found'));
     
-    render(<ProductDetailClient productId="999" />);
+    render(<ProductDetailClient productId="999" />, { wrapper });
     
     await waitFor(() => {
       expect(screen.getByText('Product not found')).toBeInTheDocument();
@@ -159,7 +165,7 @@ describe('ProductDetailClient', () => {
   it('should call API with correct productId', async () => {
     (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
     
-    render(<ProductDetailClient productId="123" />);
+    render(<ProductDetailClient productId="123" />, { wrapper });
     
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('products/123');
@@ -169,7 +175,7 @@ describe('ProductDetailClient', () => {
   it('should format price correctly', async () => {
     (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
     
-    render(<ProductDetailClient productId="1" />);
+    render(<ProductDetailClient productId="1" />, { wrapper });
     
     await waitFor(() => {
       const priceElement = screen.getByText(/R\$/);
@@ -180,7 +186,7 @@ describe('ProductDetailClient', () => {
   it('should render product image with correct alt text', async () => {
     (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
     
-    render(<ProductDetailClient productId="1" />);
+    render(<ProductDetailClient productId="1" />, { wrapper });
     
     await waitFor(() => {
       const image = screen.getByAltText('Test Product');
@@ -192,7 +198,7 @@ describe('ProductDetailClient', () => {
   it('should re-fetch when productId changes', async () => {
     (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
     
-    const { rerender } = render(<ProductDetailClient productId="1" />);
+    const { rerender } = render(<ProductDetailClient productId="1" />, { wrapper });
     
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('products/1');
