@@ -23,12 +23,11 @@ describe('Header', () => {
     expect(screen.getByRole('link', { name: /products/i })).toBeInTheDocument();
   });
 
-  it('should render shopping cart link', () => {
+  it('should render cart popover trigger', () => {
     render(<Header />, { wrapper });
     
-    const cartLink = screen.getByRole('link', { name: /shopping cart/i });
-    expect(cartLink).toBeInTheDocument();
-    expect(cartLink).toHaveAttribute('href', '/cart');
+    const cartButton = screen.getByRole('button', { name: /cart/i });
+    expect(cartButton).toBeInTheDocument();
   });
 
   it('should have correct href for products link', () => {

@@ -7,12 +7,11 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Heart, ShoppingCart } from "lucide-react";
-import { useCart } from "@/contexts/CartContext";
+import { Heart } from "lucide-react";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import CartPopover from "@/components/CartPopover";
 
 export default function Header() {
-  const { totalItems } = useCart();
   const { items: favorites } = useFavorites();
   const favoritesCount = favorites.length;
 
@@ -51,18 +50,7 @@ export default function Header() {
               </span>
             )}
           </Link>
-          <Link
-            href="/cart"
-            className="relative flex items-center justify-center rounded-md p-2 hover:bg-accent hover:text-accent-foreground transition-colors"
-            aria-label={totalItems > 0 ? `Shopping cart, ${totalItems} items` : "Shopping cart"}
-          >
-            <ShoppingCart className="h-5 w-5 text-white hover:text-zinc-900" />
-            {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                {totalItems > 99 ? "99+" : totalItems}
-              </span>
-            )}
-          </Link>
+          <CartPopover />
         </div>
       </div>
     </header>
