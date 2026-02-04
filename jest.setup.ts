@@ -2,6 +2,15 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 
+// Suppress "An update to ... inside a test was not wrapped in act(...)" when providers
+// hydrate from localStorage via queueMicrotask (intentional async setState in effects).
+const originalError = console.error;
+console.error = (...args: unknown[]) => {
+  const msg = typeof args[0] === 'string' ? args[0] : '';
+  if (msg.includes('An update to') && msg.includes('inside a test was not wrapped in act')) return;
+  originalError.apply(console, args);
+};
+
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: {
