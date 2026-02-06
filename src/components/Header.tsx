@@ -10,6 +10,7 @@ import {
 import { Heart } from "lucide-react";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import CartPopover from "@/components/CartPopover";
+import LoginPopover from "@/components/LoginPopover";
 
 export default function Header() {
   const { items: favorites } = useFavorites();
@@ -51,6 +52,9 @@ export default function Header() {
             )}
           </Link>
           <CartPopover />
+        </div>
+        <div className="flex items-center gap-1">
+          <LoginPopover />
         </div>
       </div>
     </header>
