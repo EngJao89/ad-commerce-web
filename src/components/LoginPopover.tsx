@@ -80,7 +80,7 @@ export default function LoginPopover() {
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Entrar</CardTitle>
             <CardDescription>
-              Use seu usuário e senha. Para testar: johnd / m38rmF$
+              Use seu usuário e senha para acessar.
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
@@ -95,7 +95,7 @@ export default function LoginPopover() {
                 <Input
                   id="login-username"
                   type="text"
-                  placeholder="mor_2314"
+                  placeholder="seu usuário"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"
