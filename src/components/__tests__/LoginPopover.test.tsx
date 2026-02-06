@@ -44,7 +44,7 @@ describe('LoginPopover', () => {
       expect(dialog).toHaveTextContent(/Use seu usuário e senha/);
       expect(screen.getByLabelText(/usuário/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('mor_2314')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('seu usuário')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /^Entrar$/ })).toBeInTheDocument();
     });
   });
@@ -67,7 +67,7 @@ describe('LoginPopover', () => {
       openPopover();
 
       const usernameInput = screen.getByLabelText(/usuário/i);
-      fireEvent.change(usernameInput, { target: { value: 'johnd' } });
+      fireEvent.change(usernameInput, { target: { value: 'testuser' } });
       fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
 
       expect(toast.showToast.warning).toHaveBeenCalledWith('Preencha usuário e senha.');
@@ -82,15 +82,15 @@ describe('LoginPopover', () => {
       render(<LoginPopover />);
       openPopover();
 
-      fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'johnd' } });
-      fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'm38rmF$' } });
+      fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'testuser' } });
+      fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'testpass' } });
       fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
 
       await screen.findByRole('button', { name: /login/i });
 
       expect(api.post).toHaveBeenCalledWith(
         '/auth/login',
-        { username: 'johnd', password: 'm38rmF$' },
+        { username: 'testuser', password: 'testpass' },
         expect.objectContaining({ headers: { 'Content-Type': 'application/json' } })
       );
       expect(toast.showToast.success).toHaveBeenCalledWith('Login realizado com sucesso!');
@@ -127,8 +127,8 @@ describe('LoginPopover', () => {
       render(<LoginPopover />);
       openPopover();
 
-      fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'johnd' } });
-      fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'm38rmF$' } });
+      fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'testuser' } });
+      fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'testpass' } });
       fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
 
       await screen.findByRole('button', { name: /^Entrar$/ });
