@@ -1,0 +1,229 @@
+import { render, screen, fireEvent } from '@testing-library/react';
+import { FavoritesProvider, useFavorites } from '../FavoritesContext';
+import type { Product } from '@/@types/products';
+
+const mockProductA: Product = {
+  id: 1,
+  title: 'Product A',
+  price: 10,
+  description: 'Desc A',
+  category: 'cat-a',
+  image: 'https://example.com/a.jpg',
+  rating: { rate: 4, count: 10 },
+};
+
+const mockProductB: Product = {
+  id: 2,
+  title: 'Product B',
+  price: 25.5,
+  description: 'Desc B',
+  category: 'cat-b',
+  image: 'https://example.com/b.jpg',
+};
+
+function TestConsumer() {
+  const favorites = useFavorites();
+  return (
+    <div>
+      <span data-testid="count">{favorites.items.length}</span>
+      <span data-testid="is-fav-1">{favorites.isFavorite(1) ? 'yes' : 'no'}</span>
+      <span data-testid="is-fav-2">{favorites.isFavorite(2) ? 'yes' : 'no'}</span>
+      <button
+        type="button"
+        onClick={() => favorites.add(mockProductA)}
+        data-testid="add-a"
+      >
+        Add A
+      </button>
+      <button
+        type="button"
+        onClick={() => favorites.add(mockProductB)}
+        data-testid="add-b"
+      >
+        Add B
+      </button>
+      <button
+        type="button"
+        onClick={() => favorites.remove(1)}
+        data-testid="remove-a"
+      >
+        Remove A
+      </button>
+      <button
+        type="button"
+        onClick={() => favorites.toggle(mockProductA)}
+        data-testid="toggle-a"
+      >
+        Toggle A
+      </button>
+      <button
+        type="button"
+        onClick={() => favorites.toggle(mockProductB)}
+        data-testid="toggle-b"
+      >
+        Toggle B
+      </button>
+    </div>
+  );
+}
+
+describe('useFavorites', () => {
+  it('should throw when used outside FavoritesProvider', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => render(<TestConsumer />)).toThrow(
+      'useFavorites must be used within a FavoritesProvider'
+    );
+
+    consoleSpy.mockRestore();
+  });
+});
+
+describe('FavoritesProvider', () => {
+  const storageKey = 'ad-commerce-favorites';
+
+  beforeEach(() => {
+    localStorage.clear();
+    jest.clearAllMocks();
+  });
+
+  it('should provide initial empty favorites when localStorage is empty', async () => {
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId('is-fav-1')).toHaveTextContent('no');
+    expect(screen.getByTestId('is-fav-2')).toHaveTextContent('no');
+  });
+
+  it('should add product and update count', async () => {
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    expect(screen.getByTestId('is-fav-1')).toHaveTextContent('yes');
+    expect(screen.getByTestId('is-fav-2')).toHaveTextContent('no');
+  });
+
+  it('should not add duplicate when adding same product again', async () => {
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+    fireEvent.click(screen.getByTestId('add-a'));
+
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+  });
+
+  it('should add multiple different products', async () => {
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+    fireEvent.click(screen.getByTestId('add-b'));
+
+    expect(screen.getByTestId('count')).toHaveTextContent('2');
+    expect(screen.getByTestId('is-fav-1')).toHaveTextContent('yes');
+    expect(screen.getByTestId('is-fav-2')).toHaveTextContent('yes');
+  });
+
+  it('should remove product by id', async () => {
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+    fireEvent.click(screen.getByTestId('add-b'));
+    fireEvent.click(screen.getByTestId('remove-a'));
+
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    expect(screen.getByTestId('is-fav-1')).toHaveTextContent('no');
+    expect(screen.getByTestId('is-fav-2')).toHaveTextContent('yes');
+  });
+
+  it('should toggle product on when not in favorites', async () => {
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('toggle-a'));
+
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    expect(screen.getByTestId('is-fav-1')).toHaveTextContent('yes');
+  });
+
+  it('should toggle product off when already in favorites', async () => {
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+    fireEvent.click(screen.getByTestId('toggle-a'));
+
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId('is-fav-1')).toHaveTextContent('no');
+  });
+
+  it('should persist favorites to localStorage after updates', async () => {
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+
+    const stored = localStorage.getItem(storageKey);
+    expect(stored).toBeTruthy();
+    const parsed = JSON.parse(stored!);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].id).toBe(1);
+    expect(parsed[0].title).toBe('Product A');
+  });
+
+  it('should hydrate from localStorage on mount', async () => {
+    const initial = [mockProductA, mockProductB];
+    localStorage.setItem(storageKey, JSON.stringify(initial));
+
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+
+    expect(screen.getByTestId('count')).toHaveTextContent('2');
+    expect(screen.getByTestId('is-fav-1')).toHaveTextContent('yes');
+    expect(screen.getByTestId('is-fav-2')).toHaveTextContent('yes');
+  });
+});
