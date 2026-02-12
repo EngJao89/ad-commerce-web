@@ -1,13 +1,21 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import ProductDetailClient from '../ProductDetailClient';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
 import api from '@/lib/axios';
 import * as toastModule from '@/lib/toast';
 import type { Product } from '@/@types/products';
 
+const mockToggleFavorite = jest.fn();
+
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <FavoritesProvider>{children}</FavoritesProvider>
 );
+
+jest.mock('@/contexts/FavoritesContext', () => ({
+  ...jest.requireActual('@/contexts/FavoritesContext'),
+  useFavorites: jest.fn(),
+}));
 
 jest.mock('@/lib/axios', () => ({
   __esModule: true,
@@ -58,6 +66,10 @@ const mockProductWithoutRating: Product = {
 describe('ProductDetailClient', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (useFavorites as jest.Mock).mockReturnValue({
+      toggle: mockToggleFavorite,
+      isFavorite: jest.fn(() => false),
+    });
   });
 
   it('should show loading skeleton initially', () => {
@@ -212,5 +224,40 @@ describe('ProductDetailClient', () => {
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('products/2');
     });
+  });
+
+  it('should add to favorites and show toast when heart is clicked and product is not favorited', async () => {
+    (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
+    render(<ProductDetailClient productId="1" />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Product')).toBeInTheDocument();
+    });
+
+    const favoriteButton = screen.getByRole('button', { name: /add to favorites/i });
+    fireEvent.click(favoriteButton);
+
+    expect(mockToggleFavorite).toHaveBeenCalledWith(mockProduct);
+    expect(toastModule.showToast.success).toHaveBeenCalledWith('Added to favorites');
+  });
+
+  it('should remove from favorites and show toast when heart is clicked and product is favorited', async () => {
+    (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
+    (useFavorites as jest.Mock).mockReturnValue({
+      toggle: mockToggleFavorite,
+      isFavorite: jest.fn(() => true),
+    });
+
+    render(<ProductDetailClient productId="1" />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Product')).toBeInTheDocument();
+    });
+
+    const favoriteButton = screen.getByRole('button', { name: /remove from favorites/i });
+    fireEvent.click(favoriteButton);
+
+    expect(mockToggleFavorite).toHaveBeenCalledWith(mockProduct);
+    expect(toastModule.showToast.success).toHaveBeenCalledWith('Removed from favorites');
   });
 });
