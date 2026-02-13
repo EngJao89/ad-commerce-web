@@ -95,6 +95,22 @@ describe('LoginPopover', () => {
       );
       expect(toast.showToast.success).toHaveBeenCalledWith('Login realizado com sucesso!');
     });
+
+    it('should show error toast when API returns success without token', async () => {
+      (api.post as jest.Mock).mockResolvedValue({ data: {} });
+
+      render(<LoginPopover />);
+      openPopover();
+
+      fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'testuser' } });
+      fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'testpass' } });
+      fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
+
+      await screen.findByRole('button', { name: /^Entrar$/ });
+
+      expect(toast.showToast.error).toHaveBeenCalledWith('Resposta inválida do servidor.');
+      expect(toast.showToast.success).not.toHaveBeenCalled();
+    });
   });
 
   describe('login errors', () => {
