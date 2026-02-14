@@ -226,4 +226,48 @@ describe('FavoritesProvider', () => {
     expect(screen.getByTestId('is-fav-1')).toHaveTextContent('yes');
     expect(screen.getByTestId('is-fav-2')).toHaveTextContent('yes');
   });
+
+  it('should treat non-array localStorage value as empty favorites', async () => {
+    localStorage.setItem(storageKey, '{"foo": "bar"}');
+
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+  });
+
+  it('should treat invalid JSON in localStorage as empty favorites', async () => {
+    localStorage.setItem(storageKey, 'invalid json');
+
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+  });
+
+  it('should not throw when localStorage.setItem fails', async () => {
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceeded');
+    });
+
+    render(
+      <FavoritesProvider>
+        <TestConsumer />
+      </FavoritesProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+
+    setItemSpy.mockRestore();
+  });
 });
