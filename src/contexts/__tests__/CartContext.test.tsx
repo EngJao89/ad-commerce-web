@@ -44,6 +44,13 @@ function TestConsumer() {
       </button>
       <button
         type="button"
+        onClick={() => cart.add(mockProductA, 0)}
+        data-testid="add-a-zero"
+      >
+        Add A (0)
+      </button>
+      <button
+        type="button"
         onClick={() => cart.remove(1)}
         data-testid="remove-a"
       >
@@ -55,6 +62,13 @@ function TestConsumer() {
         data-testid="update-a"
       >
         Update A to 5
+      </button>
+      <button
+        type="button"
+        onClick={() => cart.updateQuantity(1, 0)}
+        data-testid="update-a-zero"
+      >
+        Update A to 0
       </button>
       <button type="button" onClick={() => cart.clear()} data-testid="clear">
         Clear
@@ -177,6 +191,35 @@ describe('CartProvider', () => {
     expect(screen.getByTestId('total-price')).toHaveTextContent('50');
   });
 
+  it('should not add when quantity is 0', async () => {
+    render(
+      <CartProvider>
+        <TestConsumer />
+      </CartProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a-zero'));
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId('total-items')).toHaveTextContent('0');
+  });
+
+  it('should preserve other items when updating quantity of one', async () => {
+    render(
+      <CartProvider>
+        <TestConsumer />
+      </CartProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+    fireEvent.click(screen.getByTestId('add-b'));
+    fireEvent.click(screen.getByTestId('update-a'));
+    expect(screen.getByTestId('count')).toHaveTextContent('2');
+    expect(screen.getByTestId('total-items')).toHaveTextContent('6');
+    expect(Number(screen.getByTestId('total-price').textContent)).toBe(75.5);
+  });
+
   it('should clear all items', async () => {
     render(
       <CartProvider>
@@ -230,5 +273,85 @@ describe('CartProvider', () => {
     expect(screen.getByTestId('count')).toHaveTextContent('2');
     expect(screen.getByTestId('total-items')).toHaveTextContent('4');
     expect(Number(screen.getByTestId('total-price').textContent)).toBe(55.5);
+  });
+
+  it('should treat non-array localStorage value as empty cart', async () => {
+    localStorage.setItem(storageKey, '{"foo": "bar"}');
+
+    render(
+      <CartProvider>
+        <TestConsumer />
+      </CartProvider>
+    );
+
+    await screen.findByTestId('count');
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId('total-items')).toHaveTextContent('0');
+  });
+
+  it('should treat invalid JSON in localStorage as empty cart', async () => {
+    localStorage.setItem(storageKey, 'invalid json');
+
+    render(
+      <CartProvider>
+        <TestConsumer />
+      </CartProvider>
+    );
+
+    await screen.findByTestId('count');
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId('total-items')).toHaveTextContent('0');
+  });
+
+  it('should not throw when localStorage.setItem fails', async () => {
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceeded');
+    });
+
+    render(
+      <CartProvider>
+        <TestConsumer />
+      </CartProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+    expect(screen.getByTestId('total-items')).toHaveTextContent('2');
+
+    setItemSpy.mockRestore();
+  });
+
+  it('should update quantity of existing item when cart has multiple items', async () => {
+    render(
+      <CartProvider>
+        <TestConsumer />
+      </CartProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+    fireEvent.click(screen.getByTestId('add-b'));
+    fireEvent.click(screen.getByTestId('add-a'));
+
+    expect(screen.getByTestId('count')).toHaveTextContent('2');
+    expect(screen.getByTestId('total-items')).toHaveTextContent('5');
+    expect(Number(screen.getByTestId('total-price').textContent)).toBe(65.5);
+  });
+
+  it('should remove item when updateQuantity is called with 0', async () => {
+    render(
+      <CartProvider>
+        <TestConsumer />
+      </CartProvider>
+    );
+
+    await screen.findByTestId('count');
+    fireEvent.click(screen.getByTestId('add-a'));
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    expect(screen.getByTestId('total-items')).toHaveTextContent('2');
+
+    fireEvent.click(screen.getByTestId('update-a-zero'));
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId('total-items')).toHaveTextContent('0');
   });
 });
