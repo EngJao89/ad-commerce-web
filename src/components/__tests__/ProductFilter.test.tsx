@@ -93,6 +93,27 @@ describe('ProductFilter', () => {
     expect(products[0]).toHaveTextContent('Product B');
   });
 
+  it('should clear price sort when toggling selected option off', () => {
+    render(<ProductFilter products={mockProducts} />, { wrapper });
+
+    const priceAsc = screen.getByLabelText(/preço crescente/i);
+    fireEvent.click(priceAsc);
+    const productsAfterSort = screen.getAllByText(/Product/);
+    expect(productsAfterSort[0]).toHaveTextContent('Product C');
+
+    fireEvent.click(priceAsc);
+    expect(screen.getByText(/3 product\(s\) found/)).toBeInTheDocument();
+  });
+
+  it('should clear name sort when toggling selected option off', () => {
+    render(<ProductFilter products={mockProducts} />, { wrapper });
+
+    const nameAz = screen.getByLabelText(/nome a-z/i);
+    fireEvent.click(nameAz);
+    fireEvent.click(nameAz);
+    expect(screen.getByText(/3 product\(s\) found/)).toBeInTheDocument();
+  });
+
   it('should sort products by name A-Z', () => {
     render(<ProductFilter products={mockProducts} />, { wrapper });
 
@@ -125,6 +146,13 @@ describe('ProductFilter', () => {
 
     expect(screen.getByText('No products found')).toBeInTheDocument();
     expect(screen.queryByText('Product A')).not.toBeInTheDocument();
+  });
+
+  it('should show empty state with generic message when products array is empty', () => {
+    render(<ProductFilter products={[]} />, { wrapper });
+
+    expect(screen.getByText('No products found')).toBeInTheDocument();
+    expect(screen.getByText(/No products available at the moment. Please try again later./)).toBeInTheDocument();
   });
 
   it('should hide category filter when hideCategoryFilter is true', () => {
