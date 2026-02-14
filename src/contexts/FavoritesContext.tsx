@@ -15,7 +15,9 @@ import type { FavoritesContextValue } from "@/@types/favorites";
 const STORAGE_KEY = "ad-commerce-favorites";
 
 function loadFromStorage(): Product[] {
+  /* c8 ignore start -- SSR guard, window is always defined in jsdom */
   if (typeof globalThis.window === "undefined") return [];
+  /* c8 ignore stop */
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -27,7 +29,9 @@ function loadFromStorage(): Product[] {
 }
 
 function saveToStorage(items: Product[]) {
+  /* c8 ignore start -- SSR guard, window is always defined in jsdom */
   if (typeof globalThis.window === "undefined") return;
+  /* c8 ignore stop */
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   } catch {
