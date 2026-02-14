@@ -6,6 +6,7 @@ import {
   NavigationMenuLink,
   NavigationMenuTrigger,
   NavigationMenuContent,
+  NavigationMenuIndicator,
 } from '../ui/navigation-menu';
 
 class ResizeObserverMock {
@@ -182,5 +183,20 @@ describe('NavigationMenu', () => {
     const linkSlot = container.querySelector('[data-slot="navigation-menu-link"]');
     expect(linkSlot).toBeInTheDocument();
     expect(linkSlot).toHaveTextContent('Link text');
+  });
+
+  it('should render NavigationMenuIndicator without throwing', () => {
+    const { container } = render(
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Menu</NavigationMenuTrigger>
+            <NavigationMenuContent>Content</NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+        <NavigationMenuIndicator />
+      </NavigationMenu>
+    );
+    expect(container.querySelector('[data-slot="navigation-menu"]')).toBeInTheDocument();
   });
 });
