@@ -1,6 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { AuthProvider } from '../AuthContext';
 import { FavoritesProvider, useFavorites } from '../FavoritesContext';
 import type { Product } from '@/@types/products';
+
+const AUTH_STORAGE_KEY = 'ad-commerce-token';
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <AuthProvider>
+    <FavoritesProvider>{children}</FavoritesProvider>
+  </AuthProvider>
+);
 
 const mockProductA: Product = {
   id: 1,
@@ -84,15 +93,12 @@ describe('FavoritesProvider', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem(AUTH_STORAGE_KEY, 'test-token');
     jest.clearAllMocks();
   });
 
   it('should provide initial empty favorites when localStorage is empty', async () => {
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
 
@@ -102,11 +108,7 @@ describe('FavoritesProvider', () => {
   });
 
   it('should add product and update count', async () => {
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -117,11 +119,7 @@ describe('FavoritesProvider', () => {
   });
 
   it('should not add duplicate when adding same product again', async () => {
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -131,11 +129,7 @@ describe('FavoritesProvider', () => {
   });
 
   it('should add multiple different products', async () => {
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -147,11 +141,7 @@ describe('FavoritesProvider', () => {
   });
 
   it('should remove product by id', async () => {
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -164,11 +154,7 @@ describe('FavoritesProvider', () => {
   });
 
   it('should toggle product on when not in favorites', async () => {
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('toggle-a'));
@@ -178,11 +164,7 @@ describe('FavoritesProvider', () => {
   });
 
   it('should toggle product off when already in favorites', async () => {
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -193,11 +175,7 @@ describe('FavoritesProvider', () => {
   });
 
   it('should persist favorites to localStorage after updates', async () => {
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -214,11 +192,7 @@ describe('FavoritesProvider', () => {
     const initial = [mockProductA, mockProductB];
     localStorage.setItem(storageKey, JSON.stringify(initial));
 
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
 
@@ -230,11 +204,7 @@ describe('FavoritesProvider', () => {
   it('should treat non-array localStorage value as empty favorites', async () => {
     localStorage.setItem(storageKey, '{"foo": "bar"}');
 
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     expect(screen.getByTestId('count')).toHaveTextContent('0');
@@ -243,11 +213,7 @@ describe('FavoritesProvider', () => {
   it('should treat invalid JSON in localStorage as empty favorites', async () => {
     localStorage.setItem(storageKey, 'invalid json');
 
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     expect(screen.getByTestId('count')).toHaveTextContent('0');
@@ -258,16 +224,40 @@ describe('FavoritesProvider', () => {
       throw new Error('QuotaExceeded');
     });
 
-    render(
-      <FavoritesProvider>
-        <TestConsumer />
-      </FavoritesProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
     expect(screen.getByTestId('count')).toHaveTextContent('1');
 
     setItemSpy.mockRestore();
+  });
+
+  describe('when user is not logged in', () => {
+    beforeEach(() => {
+      localStorage.clear();
+      jest.clearAllMocks();
+    });
+
+    it('should provide empty favorites and not persist to localStorage', async () => {
+      render(<TestConsumer />, { wrapper });
+
+      await screen.findByTestId('count');
+
+      expect(screen.getByTestId('count')).toHaveTextContent('0');
+      expect(screen.getByTestId('is-fav-1')).toHaveTextContent('no');
+      expect(localStorage.getItem(storageKey)).toBeNull();
+    });
+
+    it('should clear favorites from localStorage when no token', async () => {
+      localStorage.setItem(storageKey, JSON.stringify([mockProductA]));
+
+      render(<TestConsumer />, { wrapper });
+
+      await screen.findByTestId('count');
+
+      expect(screen.getByTestId('count')).toHaveTextContent('0');
+      expect(localStorage.getItem(storageKey)).toBeNull();
+    });
   });
 });

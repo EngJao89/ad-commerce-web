@@ -11,6 +11,7 @@ import {
 } from "react";
 import type { Product } from "@/@types/products";
 import type { FavoritesContextValue } from "@/@types/favorites";
+import { useAuth } from "@/contexts/AuthContext";
 
 const STORAGE_KEY = "ad-commerce-favorites";
 
@@ -42,21 +43,36 @@ function saveToStorage(items: Product[]) {
 const FavoritesContext = createContext<FavoritesContextValue | null>(null);
 
 export function FavoritesProvider({ children }: Readonly<{ children: ReactNode }>) {
+  const { token } = useAuth();
   const [items, setItems] = useState<Product[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    if (!token) {
+      try {
+        if (typeof globalThis.window !== "undefined") {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch {
+        // ignore
+      }
+      queueMicrotask(() => {
+        setItems([]);
+        setHydrated(true);
+      });
+      return;
+    }
     const stored = loadFromStorage();
     queueMicrotask(() => {
       setItems(stored);
       setHydrated(true);
     });
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !token) return;
     saveToStorage(items);
-  }, [items, hydrated]);
+  }, [items, hydrated, token]);
 
   const add = useCallback((product: Product) => {
     setItems((prev) => {

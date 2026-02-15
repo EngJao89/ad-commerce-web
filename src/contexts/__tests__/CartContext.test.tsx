@@ -1,6 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { AuthProvider } from '../AuthContext';
 import { CartProvider, useCart } from '../CartContext';
 import type { Product } from '@/@types/products';
+
+const AUTH_STORAGE_KEY = 'ad-commerce-token';
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <AuthProvider>
+    <CartProvider>{children}</CartProvider>
+  </AuthProvider>
+);
 
 const mockProductA: Product = {
   id: 1,
@@ -94,15 +103,12 @@ describe('CartProvider', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem(AUTH_STORAGE_KEY, 'test-token');
     jest.clearAllMocks();
   });
 
   it('should provide initial empty cart when localStorage is empty', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
 
@@ -112,11 +118,7 @@ describe('CartProvider', () => {
   });
 
   it('should add product and update totalItems and totalPrice', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -127,11 +129,7 @@ describe('CartProvider', () => {
   });
 
   it('should increase quantity when adding same product again', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -143,11 +141,7 @@ describe('CartProvider', () => {
   });
 
   it('should add multiple different products', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -159,11 +153,7 @@ describe('CartProvider', () => {
   });
 
   it('should remove product by id', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -176,11 +166,7 @@ describe('CartProvider', () => {
   });
 
   it('should update quantity for product', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -192,11 +178,7 @@ describe('CartProvider', () => {
   });
 
   it('should not add when quantity is 0', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a-zero'));
@@ -205,11 +187,7 @@ describe('CartProvider', () => {
   });
 
   it('should preserve other items when updating quantity of one', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -221,11 +199,7 @@ describe('CartProvider', () => {
   });
 
   it('should clear all items', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -238,11 +212,7 @@ describe('CartProvider', () => {
   });
 
   it('should persist cart to localStorage after updates', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -262,11 +232,7 @@ describe('CartProvider', () => {
     ];
     localStorage.setItem(storageKey, JSON.stringify(initial));
 
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
 
@@ -278,11 +244,7 @@ describe('CartProvider', () => {
   it('should treat non-array localStorage value as empty cart', async () => {
     localStorage.setItem(storageKey, '{"foo": "bar"}');
 
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     expect(screen.getByTestId('count')).toHaveTextContent('0');
@@ -292,11 +254,7 @@ describe('CartProvider', () => {
   it('should treat invalid JSON in localStorage as empty cart', async () => {
     localStorage.setItem(storageKey, 'invalid json');
 
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     expect(screen.getByTestId('count')).toHaveTextContent('0');
@@ -308,11 +266,7 @@ describe('CartProvider', () => {
       throw new Error('QuotaExceeded');
     });
 
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -322,11 +276,7 @@ describe('CartProvider', () => {
   });
 
   it('should update quantity of existing item when cart has multiple items', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -339,11 +289,7 @@ describe('CartProvider', () => {
   });
 
   it('should remove item when updateQuantity is called with 0', async () => {
-    render(
-      <CartProvider>
-        <TestConsumer />
-      </CartProvider>
-    );
+    render(<TestConsumer />, { wrapper });
 
     await screen.findByTestId('count');
     fireEvent.click(screen.getByTestId('add-a'));
@@ -353,5 +299,35 @@ describe('CartProvider', () => {
     fireEvent.click(screen.getByTestId('update-a-zero'));
     expect(screen.getByTestId('count')).toHaveTextContent('0');
     expect(screen.getByTestId('total-items')).toHaveTextContent('0');
+  });
+
+  describe('when user is not logged in', () => {
+    beforeEach(() => {
+      localStorage.clear();
+      jest.clearAllMocks();
+    });
+
+    it('should provide empty cart and not persist to localStorage', async () => {
+      render(<TestConsumer />, { wrapper });
+
+      await screen.findByTestId('count');
+
+      expect(screen.getByTestId('count')).toHaveTextContent('0');
+      expect(screen.getByTestId('total-items')).toHaveTextContent('0');
+      expect(localStorage.getItem(storageKey)).toBeNull();
+    });
+
+    it('should clear cart from localStorage when no token', async () => {
+      const initial = [{ product: mockProductA, quantity: 2 }];
+      localStorage.setItem(storageKey, JSON.stringify(initial));
+
+      render(<TestConsumer />, { wrapper });
+
+      await screen.findByTestId('count');
+
+      expect(screen.getByTestId('count')).toHaveTextContent('0');
+      expect(screen.getByTestId('total-items')).toHaveTextContent('0');
+      expect(localStorage.getItem(storageKey)).toBeNull();
+    });
   });
 });
