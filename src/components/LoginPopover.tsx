@@ -26,26 +26,26 @@ const AUTH_LOGIN_ENDPOINT = "/auth/login";
 
 export default function LoginPopover() {
   const [open, setOpen] = useState(false);
-  const [username, setUsername] = useState("");
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !password) {
-      showToast.warning("Preencha usuário e senha.");
+    if (!login.trim() || !password) {
+      showToast.warning("Preencha email ou usuário e senha.");
       return;
     }
     setLoading(true);
     try {
       const { data } = await api.post<{ token: string }>(
         AUTH_LOGIN_ENDPOINT,
-        { username: username.trim(), password },
+        { username: login.trim(), password },
         { headers: { "Content-Type": "application/json" } }
       );
       if (data?.token) {
         showToast.success("Login realizado com sucesso!");
-        setUsername("");
+        setLogin("");
         setPassword("");
         setOpen(false);
       } else {
@@ -80,24 +80,24 @@ export default function LoginPopover() {
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Entrar</CardTitle>
             <CardDescription>
-              Use seu usuário e senha para acessar.
+              Use seu email ou usuário e senha para acessar.
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="flex flex-col gap-3 pt-0">
               <div className="space-y-2">
                 <label
-                  htmlFor="login-username"
+                  htmlFor="login-identifier"
                   className="text-sm font-medium leading-none"
                 >
-                  Usuário
+                  Email ou usuário
                 </label>
                 <Input
-                  id="login-username"
+                  id="login-identifier"
                   type="text"
-                  placeholder="seu usuário"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="seu email ou usuário"
+                  value={login}
+                  onChange={(e) => setLogin(e.target.value)}
                   autoComplete="username"
                   disabled={loading}
                   className="bg-background"
