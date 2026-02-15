@@ -41,16 +41,16 @@ describe('LoginPopover', () => {
 
       const dialog = screen.getByRole('dialog');
       expect(dialog).toHaveTextContent('Entrar');
-      expect(dialog).toHaveTextContent(/Use seu usuário e senha/);
-      expect(screen.getByLabelText(/usuário/i)).toBeInTheDocument();
+      expect(dialog).toHaveTextContent(/Use seu email ou usuário e senha/);
+      expect(screen.getByLabelText(/email ou usuário/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('seu usuário')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('seu email ou usuário')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /^Entrar$/ })).toBeInTheDocument();
     });
   });
 
   describe('validation', () => {
-    it('should show warning toast when submitting with empty username', () => {
+    it('should show warning toast when submitting with empty email/username', () => {
       render(<LoginPopover />);
       openPopover();
 
@@ -58,7 +58,7 @@ describe('LoginPopover', () => {
       fireEvent.change(passwordInput, { target: { value: 'pass123' } });
       fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
 
-      expect(toast.showToast.warning).toHaveBeenCalledWith('Preencha usuário e senha.');
+      expect(toast.showToast.warning).toHaveBeenCalledWith('Preencha email ou usuário e senha.');
       expect(api.post).not.toHaveBeenCalled();
     });
 
@@ -66,11 +66,11 @@ describe('LoginPopover', () => {
       render(<LoginPopover />);
       openPopover();
 
-      const usernameInput = screen.getByLabelText(/usuário/i);
-      fireEvent.change(usernameInput, { target: { value: 'testuser' } });
+      const loginInput = screen.getByLabelText(/email ou usuário/i);
+      fireEvent.change(loginInput, { target: { value: 'testuser' } });
       fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
 
-      expect(toast.showToast.warning).toHaveBeenCalledWith('Preencha usuário e senha.');
+      expect(toast.showToast.warning).toHaveBeenCalledWith('Preencha email ou usuário e senha.');
       expect(api.post).not.toHaveBeenCalled();
     });
   });
@@ -82,7 +82,7 @@ describe('LoginPopover', () => {
       render(<LoginPopover />);
       openPopover();
 
-      fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'testuser' } });
+      fireEvent.change(screen.getByLabelText(/email ou usuário/i), { target: { value: 'testuser' } });
       fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'testpass' } });
       fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
 
@@ -96,13 +96,34 @@ describe('LoginPopover', () => {
       expect(toast.showToast.success).toHaveBeenCalledWith('Login realizado com sucesso!');
     });
 
+    it('should send email as username when user types email', async () => {
+      (api.post as jest.Mock).mockResolvedValue({ data: { token: 'jwt-token' } });
+
+      render(<LoginPopover />);
+      openPopover();
+
+      fireEvent.change(screen.getByLabelText(/email ou usuário/i), {
+        target: { value: 'user@example.com' },
+      });
+      fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'secret' } });
+      fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
+
+      await screen.findByRole('button', { name: /login/i });
+
+      expect(api.post).toHaveBeenCalledWith(
+        '/auth/login',
+        { username: 'user@example.com', password: 'secret' },
+        expect.any(Object)
+      );
+    });
+
     it('should show error toast when API returns success without token', async () => {
       (api.post as jest.Mock).mockResolvedValue({ data: {} });
 
       render(<LoginPopover />);
       openPopover();
 
-      fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'testuser' } });
+      fireEvent.change(screen.getByLabelText(/email ou usuário/i), { target: { value: 'testuser' } });
       fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'testpass' } });
       fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
 
@@ -127,7 +148,7 @@ describe('LoginPopover', () => {
       render(<LoginPopover />);
       openPopover();
 
-      fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'wrong' } });
+      fireEvent.change(screen.getByLabelText(/email ou usuário/i), { target: { value: 'wrong' } });
       fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'wrong' } });
       fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
 
@@ -143,7 +164,7 @@ describe('LoginPopover', () => {
       render(<LoginPopover />);
       openPopover();
 
-      fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'testuser' } });
+      fireEvent.change(screen.getByLabelText(/email ou usuário/i), { target: { value: 'testuser' } });
       fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'testpass' } });
       fireEvent.submit(screen.getByRole('button', { name: /^Entrar$/ }).closest('form')!);
 
