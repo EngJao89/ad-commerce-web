@@ -11,6 +11,7 @@ import {
 } from "react";
 import type { Product } from "@/@types/products";
 import type { CartItem, CartContextValue } from "@/@types/cart";
+import { useAuth } from "@/contexts/AuthContext";
 
 const STORAGE_KEY = "ad-commerce-cart";
 
@@ -38,21 +39,36 @@ function saveToStorage(items: CartItem[]) {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { token } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    if (!token) {
+      try {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch {
+        // ignore
+      }
+      queueMicrotask(() => {
+        setItems([]);
+        setHydrated(true);
+      });
+      return;
+    }
     const stored = loadFromStorage();
     queueMicrotask(() => {
       setItems(stored);
       setHydrated(true);
     });
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !token) return;
     saveToStorage(items);
-  }, [items, hydrated]);
+  }, [items, hydrated, token]);
 
   const add = useCallback((product: Product, quantity: number) => {
     if (quantity <= 0) return;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -9,15 +9,32 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Heart, LogOut, ShoppingCart } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Heart, LogOut, ShoppingCart, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { getUserById } from "@/lib/userApi";
 import CartPopover from "@/components/CartPopover";
 import LoginPopover from "@/components/LoginPopover";
 import { Button } from "@/components/ui/button";
 
 export default function Header() {
-  const { isAuthenticated, logout, setOpenLogin } = useAuth();
+  const { isAuthenticated, userId, logout, setOpenLogin } = useAuth();
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated || userId == null) return;
+    let cancelled = false;
+    getUserById(userId).then((user) => {
+      if (!cancelled && user?.username) setUsername(user.username);
+    });
+    return () => {
+      cancelled = true;
+      setUsername(null);
+    };
+  }, [isAuthenticated, userId]);
+
+  const displayName = isAuthenticated && userId != null ? (username ?? "…") : null;
   const { items: favorites } = useFavorites();
   const favoritesCount = favorites.length;
   const searchParams = useSearchParams();
@@ -91,7 +108,30 @@ export default function Header() {
             </Button>
           )}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          {isAuthenticated ? (
+            <Badge
+              variant="secondary"
+              className="gap-1.5 border-white/20 bg-white/10 px-2.5 py-1 text-white hover:bg-white/20 [&>svg]:size-4"
+            >
+              <User className="size-4" />
+              {displayName}
+            </Badge>
+          ) : (
+            <LoginPopover
+              trigger={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-accent hover:text-accent-foreground"
+                  aria-label="Login"
+                  onClick={() => setOpenLogin(true)}
+                >
+                  <User className="h-5 w-5" />
+                </Button>
+              }
+            />
+          )}
           {isAuthenticated ? (
             <Button
               variant="ghost"
@@ -103,9 +143,7 @@ export default function Header() {
               <LogOut className="h-5 w-5" />
               Sair
             </Button>
-          ) : (
-            <LoginPopover />
-          )}
+          ) : null}
         </div>
       </div>
     </header>

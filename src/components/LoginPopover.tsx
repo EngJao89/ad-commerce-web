@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { LogIn } from "lucide-react";
 
 import { AxiosError } from "axios";
 import api from "@/lib/axios";
+import { getUserIdFromToken } from "@/lib/jwt";
 import { showToast, showApiError } from "@/lib/toast";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -25,7 +26,11 @@ import { Input } from "@/components/ui/input";
 
 const AUTH_LOGIN_ENDPOINT = "/auth/login";
 
-export default function LoginPopover() {
+type LoginPopoverProps = Readonly<{
+  trigger?: ReactNode;
+}>;
+
+export default function LoginPopover({ trigger }: LoginPopoverProps) {
   const { login: authLogin, openLogin, setOpenLogin } = useAuth();
   const [open, setOpen] = useState(false);
   const [login, setLogin] = useState("");
@@ -52,13 +57,14 @@ export default function LoginPopover() {
     }
     setLoading(true);
     try {
-      const { data } = await api.post<{ token: string }>(
+      const { data } = await api.post<{ token: string; user?: { id: number } }>(
         AUTH_LOGIN_ENDPOINT,
         { username: login.trim(), password },
         { headers: { "Content-Type": "application/json" } }
       );
       if (data?.token) {
-        authLogin(data.token);
+        const userId = data.user?.id ?? getUserIdFromToken(data.token);
+        authLogin(data.token, userId ?? undefined);
         showToast.success("Login realizado com sucesso!");
         setLogin("");
         setPassword("");
@@ -80,15 +86,17 @@ export default function LoginPopover() {
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-white hover:bg-accent hover:text-accent-foreground gap-2"
-          aria-label="Login"
-        >
-          <LogIn className="h-5 w-5" />
-          Login
-        </Button>
+        {trigger ?? (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white hover:bg-accent hover:text-accent-foreground gap-2"
+            aria-label="Login"
+          >
+            <LogIn className="h-5 w-5" />
+            Login
+          </Button>
+        )}
       </PopoverTrigger>
       <PopoverContent className="w-[340px] p-0" align="end" sideOffset={8}>
         <Card className="border-0 shadow-none gap-4">
