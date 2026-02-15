@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -32,7 +33,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-900`}
       >
         <Providers>
-          <Header />
+          <Suspense
+            fallback={
+              <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-white/5 backdrop-blur-md h-16" />
+            }
+          >
+            <Header />
+          </Suspense>
           {children}
           <ToastContainer />
         </Providers>

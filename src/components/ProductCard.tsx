@@ -7,6 +7,7 @@ import { Heart, Minus, Plus, ShoppingCart } from "lucide-react";
 
 import { formatPrice } from "@/lib/utils";
 import { showToast } from "@/lib/toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import type { ProductDetailProps, Product } from "@/@types/products";
@@ -31,6 +32,7 @@ export default function ProductCard({
   rating,
 }: Readonly<ProductDetailProps>) {
   const [quantity, setQuantity] = useState(0);
+  const { isAuthenticated, requestLogin } = useAuth();
   const { add } = useCart();
   const { toggle: toggleFavorite, isFavorite } = useFavorites();
   const favorited = isFavorite(id);
@@ -56,6 +58,11 @@ export default function ProductCard({
   };
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      showToast.warning("Faça login para adicionar ao carrinho.");
+      requestLogin();
+      return;
+    }
     if (quantity > 0) {
       add(product, quantity);
       showToast.success(
@@ -70,6 +77,11 @@ export default function ProductCard({
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isAuthenticated) {
+      showToast.warning("Faça login para favoritar.");
+      requestLogin();
+      return;
+    }
     toggleFavorite(product);
     showToast.success(favorited ? "Removed from favorites" : "Added to favorites");
   };

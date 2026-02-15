@@ -1,8 +1,13 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import LoginPopover from '../LoginPopover';
+import { AuthProvider } from '@/contexts/AuthContext';
 import api from '@/lib/axios';
 import * as toast from '@/lib/toast';
 import { AxiosError } from 'axios';
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <AuthProvider>{children}</AuthProvider>
+);
 
 jest.mock('@/lib/axios', () => ({
   __esModule: true,
@@ -30,13 +35,13 @@ describe('LoginPopover', () => {
 
   describe('trigger and content', () => {
     it('should render login trigger button with aria-label', () => {
-      render(<LoginPopover />);
+      render(<LoginPopover />, { wrapper });
       expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
       expect(screen.getByText('Login')).toBeInTheDocument();
     });
 
     it('should show popover content when trigger is clicked', () => {
-      render(<LoginPopover />);
+      render(<LoginPopover />, { wrapper });
       openPopover();
 
       const dialog = screen.getByRole('dialog');
@@ -51,7 +56,7 @@ describe('LoginPopover', () => {
 
   describe('validation', () => {
     it('should show warning toast when submitting with empty email/username', () => {
-      render(<LoginPopover />);
+      render(<LoginPopover />, { wrapper });
       openPopover();
 
       const passwordInput = screen.getByLabelText(/senha/i);
@@ -63,7 +68,7 @@ describe('LoginPopover', () => {
     });
 
     it('should show warning toast when submitting with empty password', () => {
-      render(<LoginPopover />);
+      render(<LoginPopover />, { wrapper });
       openPopover();
 
       const loginInput = screen.getByLabelText(/email ou usuário/i);
@@ -79,7 +84,7 @@ describe('LoginPopover', () => {
     it('should call api.post with credentials and show success toast', async () => {
       (api.post as jest.Mock).mockResolvedValue({ data: { token: 'jwt-token' } });
 
-      render(<LoginPopover />);
+      render(<LoginPopover />, { wrapper });
       openPopover();
 
       fireEvent.change(screen.getByLabelText(/email ou usuário/i), { target: { value: 'testuser' } });
@@ -99,7 +104,7 @@ describe('LoginPopover', () => {
     it('should send email as username when user types email', async () => {
       (api.post as jest.Mock).mockResolvedValue({ data: { token: 'jwt-token' } });
 
-      render(<LoginPopover />);
+      render(<LoginPopover />, { wrapper });
       openPopover();
 
       fireEvent.change(screen.getByLabelText(/email ou usuário/i), {
@@ -120,7 +125,7 @@ describe('LoginPopover', () => {
     it('should show error toast when API returns success without token', async () => {
       (api.post as jest.Mock).mockResolvedValue({ data: {} });
 
-      render(<LoginPopover />);
+      render(<LoginPopover />, { wrapper });
       openPopover();
 
       fireEvent.change(screen.getByLabelText(/email ou usuário/i), { target: { value: 'testuser' } });
@@ -145,7 +150,7 @@ describe('LoginPopover', () => {
       });
       (api.post as jest.Mock).mockRejectedValue(err);
 
-      render(<LoginPopover />);
+      render(<LoginPopover />, { wrapper });
       openPopover();
 
       fireEvent.change(screen.getByLabelText(/email ou usuário/i), { target: { value: 'wrong' } });
@@ -161,7 +166,7 @@ describe('LoginPopover', () => {
     it('should call showApiError on other request errors', async () => {
       (api.post as jest.Mock).mockRejectedValue(new Error('Network error'));
 
-      render(<LoginPopover />);
+      render(<LoginPopover />, { wrapper });
       openPopover();
 
       fireEvent.change(screen.getByLabelText(/email ou usuário/i), { target: { value: 'testuser' } });

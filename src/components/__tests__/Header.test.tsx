@@ -1,12 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import Header from '../Header';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <CartProvider>
-    <FavoritesProvider>{children}</FavoritesProvider>
-  </CartProvider>
+  <AuthProvider>
+    <CartProvider>
+      <FavoritesProvider>{children}</FavoritesProvider>
+    </CartProvider>
+  </AuthProvider>
 );
 
 describe('Header', () => {

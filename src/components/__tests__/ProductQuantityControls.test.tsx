@@ -7,6 +7,14 @@ import type { Product } from '@/@types/products';
 
 const mockAdd = jest.fn();
 
+jest.mock('@/contexts/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useAuth: () => ({
+    isAuthenticated: true,
+    requestLogin: jest.fn(),
+  }),
+}));
+
 jest.mock('@/contexts/CartContext', () => ({
   ...jest.requireActual('@/contexts/CartContext'),
   useCart: jest.fn(),
