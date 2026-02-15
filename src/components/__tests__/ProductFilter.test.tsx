@@ -1,13 +1,16 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ProductFilter from '../ProductFilter';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import type { Product } from '@/@types/products';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <CartProvider>
-    <FavoritesProvider>{children}</FavoritesProvider>
-  </CartProvider>
+  <AuthProvider>
+    <CartProvider>
+      <FavoritesProvider>{children}</FavoritesProvider>
+    </CartProvider>
+  </AuthProvider>
 );
 
 const mockProducts: Product[] = [

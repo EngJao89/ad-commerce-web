@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 import { showToast } from "@/lib/toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import type { ProductQuantityControlsProps } from "@/@types/products";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -15,6 +16,7 @@ export default function ProductQuantityControls({
   product,
 }: Readonly<ProductQuantityControlsProps>) {
   const [quantity, setQuantity] = useState(0);
+  const { isAuthenticated, requestLogin } = useAuth();
   const { add } = useCart();
 
   const handleDecrease = () => {
@@ -28,6 +30,11 @@ export default function ProductQuantityControls({
   };
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      showToast.warning("Faça login para adicionar ao carrinho.");
+      requestLogin();
+      return;
+    }
     if (quantity <= 0) {
       showToast.warning("Please select a quantity first");
       return;

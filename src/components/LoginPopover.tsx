@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LogIn } from "lucide-react";
 
 import { AxiosError } from "axios";
 import api from "@/lib/axios";
 import { showToast, showApiError } from "@/lib/toast";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Popover,
   PopoverContent,
@@ -25,10 +26,23 @@ import { Input } from "@/components/ui/input";
 const AUTH_LOGIN_ENDPOINT = "/auth/login";
 
 export default function LoginPopover() {
+  const { login: authLogin, openLogin, setOpenLogin } = useAuth();
   const [open, setOpen] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (openLogin) {
+      setOpen(true);
+      setOpenLogin(false);
+    }
+  }, [openLogin, setOpenLogin]);
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setOpenLogin(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +58,7 @@ export default function LoginPopover() {
         { headers: { "Content-Type": "application/json" } }
       );
       if (data?.token) {
+        authLogin(data.token);
         showToast.success("Login realizado com sucesso!");
         setLogin("");
         setPassword("");
@@ -63,7 +78,7 @@ export default function LoginPopover() {
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"

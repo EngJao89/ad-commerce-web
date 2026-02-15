@@ -9,6 +9,7 @@ import api from "@/lib/axios";
 import { showApiError, showToast } from "@/lib/toast";
 import { formatPrice } from "@/lib/utils";
 import type { Product, ProductDetailClientProps } from "@/@types/products";
+import { useAuth } from "@/contexts/AuthContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import ProductDetailSkeleton from "@/components/ProductDetailSkeleton";
 export default function ProductDetailClient({ productId }: ProductDetailClientProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const { isAuthenticated, requestLogin } = useAuth();
   const { toggle: toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
@@ -91,6 +93,11 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
                 size="icon"
                 className="rounded-full shrink-0"
                 onClick={() => {
+                  if (!isAuthenticated) {
+                    showToast.warning("Faça login para favoritar.");
+                    requestLogin();
+                    return;
+                  }
                   const wasFavorite = isFavorite(product.id);
                   toggleFavorite(product);
                   showToast.success(

@@ -12,6 +12,14 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <FavoritesProvider>{children}</FavoritesProvider>
 );
 
+jest.mock('@/contexts/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  useAuth: () => ({
+    isAuthenticated: true,
+    requestLogin: jest.fn(),
+  }),
+}));
+
 jest.mock('@/contexts/FavoritesContext', () => ({
   ...jest.requireActual('@/contexts/FavoritesContext'),
   useFavorites: jest.fn(),

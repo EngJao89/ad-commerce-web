@@ -21,6 +21,14 @@ jest.mock('@/contexts/CartContext', () => ({
   useCart: jest.fn(),
 }));
 
+jest.mock('@/contexts/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useAuth: () => ({
+    isAuthenticated: true,
+    requestLogin: jest.fn(),
+  }),
+}));
+
 jest.mock('@/contexts/FavoritesContext', () => ({
   ...jest.requireActual('@/contexts/FavoritesContext'),
   useFavorites: jest.fn(),
