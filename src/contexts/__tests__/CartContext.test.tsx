@@ -329,5 +329,17 @@ describe('CartProvider', () => {
       expect(screen.getByTestId('total-items')).toHaveTextContent('0');
       expect(localStorage.getItem(storageKey)).toBeNull();
     });
+
+    it('should still clear state when localStorage.removeItem throws (no token)', async () => {
+      const removeItem = Storage.prototype.removeItem;
+      Storage.prototype.removeItem = jest.fn().mockImplementation(() => {
+        throw new Error('removeItem failed');
+      });
+      render(<TestConsumer />, { wrapper });
+      await screen.findByTestId('count');
+      expect(screen.getByTestId('count')).toHaveTextContent('0');
+      expect(screen.getByTestId('total-items')).toHaveTextContent('0');
+      Storage.prototype.removeItem = removeItem;
+    });
   });
 });
