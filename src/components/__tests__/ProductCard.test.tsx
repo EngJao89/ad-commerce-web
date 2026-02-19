@@ -2,12 +2,14 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import ProductCard from '../ProductCard';
 import { CartProvider } from '@/contexts/CartContext';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
+import { useAuth } from '@/contexts/AuthContext';
 import * as toastModule from '@/lib/toast';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 
 const mockAdd = jest.fn();
 const mockToggleFavorite = jest.fn();
+const mockRequestLogin = jest.fn();
 
 jest.mock('@/lib/toast', () => ({
   showToast: {
@@ -23,10 +25,7 @@ jest.mock('@/contexts/CartContext', () => ({
 
 jest.mock('@/contexts/AuthContext', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  useAuth: () => ({
-    isAuthenticated: true,
-    requestLogin: jest.fn(),
-  }),
+  useAuth: jest.fn(),
 }));
 
 jest.mock('@/contexts/FavoritesContext', () => ({
@@ -62,6 +61,10 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 function setupProviders() {
+  (useAuth as jest.Mock).mockReturnValue({
+    isAuthenticated: true,
+    requestLogin: mockRequestLogin,
+  });
   (useCart as jest.Mock).mockImplementation(() => ({
     add: mockAdd,
   }));
@@ -295,5 +298,37 @@ describe('ProductCard', () => {
 
     expect(mockToggleFavorite).toHaveBeenCalled();
     expect(toastModule.showToast.success).toHaveBeenCalledWith('Removed from favorites');
+  });
+
+  it('should show login warning and call requestLogin when Add to cart clicked and not authenticated', () => {
+    (useAuth as jest.Mock).mockReturnValue({
+      isAuthenticated: false,
+      requestLogin: mockRequestLogin,
+    });
+    render(<ProductCard {...mockProduct} />, { wrapper });
+
+    const iconButtons = screen.getAllByRole('button').filter(btn => btn.querySelector('svg'));
+    const plusButton = iconButtons[1];
+    if (plusButton) fireEvent.click(plusButton);
+    fireEvent.click(screen.getByRole('button', { name: /add to cart/i }));
+
+    expect(toastModule.showToast.warning).toHaveBeenCalledWith('Faça login para adicionar ao carrinho.');
+    expect(mockRequestLogin).toHaveBeenCalled();
+    expect(mockAdd).not.toHaveBeenCalled();
+  });
+
+  it('should show login warning and call requestLogin when favorite clicked and not authenticated', () => {
+    (useAuth as jest.Mock).mockReturnValue({
+      isAuthenticated: false,
+      requestLogin: mockRequestLogin,
+    });
+    render(<ProductCard {...mockProduct} />, { wrapper });
+
+    const favoriteButton = screen.getByRole('button', { name: /add to favorites/i });
+    fireEvent.click(favoriteButton);
+
+    expect(toastModule.showToast.warning).toHaveBeenCalledWith('Faça login para favoritar.');
+    expect(mockRequestLogin).toHaveBeenCalled();
+    expect(mockToggleFavorite).not.toHaveBeenCalled();
   });
 });
