@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginPopover from '../LoginPopover';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/axios';
 import * as toast from '@/lib/toast';
 import { AxiosError } from 'axios';
@@ -8,6 +8,15 @@ import { AxiosError } from 'axios';
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <AuthProvider>{children}</AuthProvider>
 );
+
+function RequestLoginButton() {
+  const { requestLogin } = useAuth();
+  return (
+    <button type="button" onClick={requestLogin}>
+      Request login
+    </button>
+  );
+}
 
 jest.mock('@/lib/axios', () => ({
   __esModule: true,
@@ -51,6 +60,23 @@ describe('LoginPopover', () => {
       expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
       expect(screen.getByPlaceholderText('seu email ou usuário')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /^Entrar$/ })).toBeInTheDocument();
+    });
+
+    it('should open popover when openLogin becomes true (e.g. via requestLogin)', async () => {
+      render(
+        <AuthProvider>
+          <RequestLoginButton />
+          <LoginPopover />
+        </AuthProvider>
+      );
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: /request login/i }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('dialog')).toHaveTextContent('Entrar');
     });
   });
 
