@@ -2,17 +2,16 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import ProductQuantityControls from '../ProductQuantityControls';
 import { CartProvider } from '@/contexts/CartContext';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import * as toast from '@/lib/toast';
 import type { Product } from '@/@types/products';
 
 const mockAdd = jest.fn();
+const mockRequestLogin = jest.fn();
 
 jest.mock('@/contexts/AuthContext', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  useAuth: () => ({
-    isAuthenticated: true,
-    requestLogin: jest.fn(),
-  }),
+  useAuth: jest.fn(),
 }));
 
 jest.mock('@/contexts/CartContext', () => ({
@@ -66,6 +65,10 @@ describe('ProductQuantityControls', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useCart as jest.Mock).mockReturnValue({ add: mockAdd });
+    (useAuth as jest.Mock).mockReturnValue({
+      isAuthenticated: true,
+      requestLogin: mockRequestLogin,
+    });
   });
 
   const getIconButtons = () => {
@@ -277,6 +280,21 @@ describe('ProductQuantityControls', () => {
     fireEvent.click(screen.getByRole('button', { name: /add to cart/i }));
 
     expect(toast.showToast.warning).toHaveBeenCalledWith('Please select a quantity first');
+    expect(mockAdd).not.toHaveBeenCalled();
+  });
+
+  it('should show login warning and call requestLogin when not authenticated', () => {
+    (useAuth as jest.Mock).mockReturnValue({
+      isAuthenticated: false,
+      requestLogin: mockRequestLogin,
+    });
+    render(<ProductQuantityControls productId={1} product={mockProduct} />, { wrapper });
+
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /add to cart/i }));
+
+    expect(toast.showToast.warning).toHaveBeenCalledWith('Faça login para adicionar ao carrinho.');
+    expect(mockRequestLogin).toHaveBeenCalled();
     expect(mockAdd).not.toHaveBeenCalled();
   });
 
