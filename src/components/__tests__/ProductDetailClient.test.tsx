@@ -2,11 +2,13 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import ProductDetailClient from '../ProductDetailClient';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/axios';
 import * as toastModule from '@/lib/toast';
 import type { Product } from '@/@types/products';
 
 const mockToggleFavorite = jest.fn();
+const mockRequestLogin = jest.fn();
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <FavoritesProvider>{children}</FavoritesProvider>
@@ -14,10 +16,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 jest.mock('@/contexts/AuthContext', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
-  useAuth: () => ({
-    isAuthenticated: true,
-    requestLogin: jest.fn(),
-  }),
+  useAuth: jest.fn(),
 }));
 
 jest.mock('@/contexts/FavoritesContext', () => ({
@@ -34,7 +33,7 @@ jest.mock('@/lib/axios', () => ({
 
 jest.mock('@/lib/toast', () => ({
   showApiError: jest.fn(),
-  showToast: { success: jest.fn() },
+  showToast: { success: jest.fn(), warning: jest.fn() },
 }));
 
 jest.mock('../ProductDetailSkeleton', () => {
@@ -74,6 +73,10 @@ const mockProductWithoutRating: Product = {
 describe('ProductDetailClient', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (useAuth as jest.Mock).mockReturnValue({
+      isAuthenticated: true,
+      requestLogin: mockRequestLogin,
+    });
     (useFavorites as jest.Mock).mockReturnValue({
       toggle: mockToggleFavorite,
       isFavorite: jest.fn(() => false),
@@ -267,5 +270,25 @@ describe('ProductDetailClient', () => {
 
     expect(mockToggleFavorite).toHaveBeenCalledWith(mockProduct);
     expect(toastModule.showToast.success).toHaveBeenCalledWith('Removed from favorites');
+  });
+
+  it('should show login warning and call requestLogin when favorite clicked and not authenticated', async () => {
+    (useAuth as jest.Mock).mockReturnValue({
+      isAuthenticated: false,
+      requestLogin: mockRequestLogin,
+    });
+    (api.get as jest.Mock).mockResolvedValue({ data: mockProduct });
+    render(<ProductDetailClient productId="1" />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Product')).toBeInTheDocument();
+    });
+
+    const favoriteButton = screen.getByRole('button', { name: /add to favorites/i });
+    fireEvent.click(favoriteButton);
+
+    expect(toastModule.showToast.warning).toHaveBeenCalledWith('Faça login para favoritar.');
+    expect(mockRequestLogin).toHaveBeenCalled();
+    expect(mockToggleFavorite).not.toHaveBeenCalled();
   });
 });
